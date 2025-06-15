@@ -1,7 +1,7 @@
 # CHANGELOG
 
 ## Version 1.79 - 2025-xx-xx
-
+* Fixes CpuMhz "minimum" Header filter
 
 
 ## Version 1.78 - 2025-04-09
