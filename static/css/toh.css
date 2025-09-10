@@ -1092,7 +1092,7 @@ A.toh-but:hover{
 	position: absolute;
 	top: 30px;
 	right: 0;
-	z-index: 1000;
+	z-index: 10;
 }
 
 #toh-table .tabulator-header-filter INPUT:focus {
