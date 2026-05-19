@@ -182,10 +182,12 @@ jobs:
 
       - name: Create Release
         uses: actions/github-script@v6
+        env:
+          BODY: ${{ steps.body.outputs.content }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const body = `${{ steps.body.outputs.content }}`.replace(/%0A/g, '\n');
+            const body = process.env.BODY.replace(/%0A/g, '\n');
             const tagName = context.ref.replace('refs/tags/', '');
 
             await github.rest.repos.createRelease({
