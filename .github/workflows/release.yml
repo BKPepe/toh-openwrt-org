@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Fetch all history for tag detection
 
@@ -181,7 +181,7 @@ jobs:
           cat body_content.txt
 
       - name: Create Release
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         env:
           BODY: ${{ steps.body.outputs.content }}
         with:
