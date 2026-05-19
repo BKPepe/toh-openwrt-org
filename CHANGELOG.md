@@ -1,8 +1,9 @@
 # CHANGELOG
 
-## Version 1.79 - 2025-xx-xx
+## Version 1.79 - 2026-xx-xx
 * Fixes CpuMhz "minimum" Header filter
 * Fixes .tabulator-col-sorter z-index
+* Also search for 'PCI' in WLAN Hardware column
 
 
 ## Version 1.78 - 2025-04-09

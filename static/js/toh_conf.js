@@ -4,7 +4,7 @@
 
 // global -------------------------------------------------------
 const toh_app={
-	version:	"1.79b2",	// Version
+	version:	"1.79b3",	// Version
 	branch:		"dev", 		// Branch, either: 'prod' | 'dev'	
 };
 
@@ -690,7 +690,10 @@ let toh_filterFeatures={
 		description:"with PCI slot",
 		type:		"normal",
 		filters:[
-			{field:	"comments", 	type:"like",	value:'pci'},
+			[
+				{field:	"comments", 	type:"like",	value:'pci'},
+				{field:	"wlanhardware", type:"like",	value:'pci'},
+			],
 		],
 	},
 
