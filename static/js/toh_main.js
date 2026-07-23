@@ -1385,6 +1385,55 @@ function FetchAndPrintChangelog(){
 }
 
 
+// Table height ---------------------------------------------------------------
+// The container has to hold the column headers, a whole page of rows, the
+// horizontal scrollbar and the footer. All of those move with the font size,
+// the theme and the platform's scrollbar width, so they are measured rather
+// than assumed: the constants they replace were tuned for a smaller font and
+// left the last row of every page clipped once the font grew.
+
+// the height a row really renders at, which wrapping or a zoomed page can push
+// past the configured one
+function getTableRowHeight(){
+	const row = document.querySelector('#toh-table .tabulator-row');
+	const measured = row ? row.getBoundingClientRect().height : 0;
+	return Math.max(measured, tabulatorOptions.rowHeight);
+}
+
+// the content height #toh-table-container needs to show 'size' rows in full
+function getTableHeight(size){
+	const rows = parseInt(size, 10);
+	if(! rows){		// 'true' means "every row": tabulator sizes itself then
+		return null;
+	}
+	const holder	= document.querySelector('#toh-table .tabulator-tableholder');
+	const $header	= $('#toh-table .tabulator-header');
+	const $footer	= $('#toh-table .tabulator-footer');
+	if(! holder || ! $header.length || ! $footer.length){
+		return null;	// table not built yet, the CSS default still applies
+	}
+	// zero where the platform draws overlay scrollbars, ~15px where it does not
+	const h_scroll	= holder.offsetHeight - holder.clientHeight;
+	// 1px of slack so sub-pixel rounding cannot eat into the last row
+	return Math.ceil($header.outerHeight() + $footer.outerHeight() + h_scroll + (getTableRowHeight() * rows)) + 1;
+}
+
+// resizes the container unless it already fits, so calling this from a render
+// event cannot loop
+function setTableHeight(size){
+	const wanted = getTableHeight(size);
+	if(wanted === null){
+		return;
+	}
+	const $container = $('#toh-table-container');
+	if(Math.abs($container.height() - wanted) < 1){
+		return;
+	}
+	myLogStr('Table Set height: ' + wanted + ' (was ' + $container.height() + ')', 2);
+	$container.height(wanted);
+}
+
+
 
 
 
@@ -2115,6 +2164,8 @@ $(document).ready(function () {
 		myLogStr('EVENT: table-change-complete', 4);
 		UpdateCountRows();
 		UpdateCountCols();
+		// also catches the first render, a window resize and a late web font
+		setTableHeight(tabuTable.getPageSize());
 	});
 
 	// Resfresh column color on header-filter INPUT' blur ---------------------------------
@@ -2142,23 +2193,15 @@ $(document).ready(function () {
 			myLogStr('EVENT: pageSizeChange');
 			tableLoadingShow();
 			const size = e.target.value; // Get the selected value from the <select> element
-			const h_head = 53;
-			const h_scroll = 17;
-			const h_foot = 37;
-			const h_line = tabulatorOptions.rowHeight;
-			const height_t = h_head + h_scroll + h_foot + (h_line * size);
-			const height_c = height_t + 0; //(1  for border)
-			last_table_height = tabulatorOptions.rowHeight * size;
-			myLogStr('Page Size: ' + size + ' -> Height: ' + height_t,4);
+			last_table_height = getTableRowHeight() * size;
+			myLogStr('Page Size: ' + size,4);
 			myLogStr('Wanted Table Height: '+ last_table_height,4);
-
 
 			if (toh_table_inited) { // we dont need it when page loads
 				showLoading();
-	
+
 				setTimeout(() => {
-					myLogStr('Table Set height: ' + height_c,2);
-					$('#toh-table-container').height(height_c);
+					setTableHeight(size);
 					//myLogStr('Tabulator Set pagesize ' + size);
 					tabuTable.setPageSize(size == "true" ? true : size);
 					tabuTable.setPage(1);
@@ -2583,20 +2626,25 @@ function FormatterYesNo(cell, formatterParams, onRendered) {
 	if (typeof value === "string") {
 		value=value.toLowerCase().trim();
 	}
+	// an unfilled field comes back as null, which is the 'empty' case and not the
+	// 'something odd is in here' one: two thirds of the JTAG column is null
+	else if(value === null || value === undefined){
+		value='';
+	}
 	if(value=='yes'){
-		icon='fa-solid fa-check';
+		icon='fa-solid fa-check toh-mark-yes';
 	}
 	else if(value=='no'){
-		icon='fa-solid fa-xmark';
+		icon='fa-solid fa-xmark toh-mark-no';
 	}
 	else if(value=='-'){
-		icon='fa-solid fa-question dash';
+		icon='fa-solid fa-question toh-mark-unknown dash';
 	}
 	else if(value==''){
-		icon='fa-solid fa-question empty';		
+		icon='fa-solid fa-question toh-mark-unknown empty';
 	}
 	else{
-		icon='fa-solid fa-question unknown';
+		icon='fa-solid fa-question toh-mark-unknown unknown';
 	}
 	return '<i class="'+icon+'"></i>';
 }
