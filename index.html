@@ -75,8 +75,7 @@
 
 		<style>
 			#toh-boot-overlay {
-				background: rgb(0, 163, 225);
-				background: linear-gradient(to top,  rgba(0,175,239,1) 0%,rgba(0,153,209,1) 100%);
+				background: linear-gradient(135deg, #0099d9 0%, #0077b3 100%);
 				position: fixed;
 				top: 0;
 				left: 0;
@@ -85,7 +84,6 @@
 				z-index: 9998;
 				opacity: 1;
 				animation: fade 5.0s ease forwards;
-				/* display: none; */
 			}
 			@keyframes fade {
 				0%     { opacity: 1; }
@@ -102,28 +100,31 @@
 			}
 			#toh-boot-span {
 				margin-top: 30px;
-				font-size: 16px;
-				color: #000;
+				font-size: 15px;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+				color: #1e293b;
 				display: inline-block;
 				text-align: center;
-				background-color: #fff;
-				padding: 15px 30px;
-				border-radius: 20px;
-				border: 1px solid rgba(0,0,0, 0.5);
-				min-width: 230px;
-				box-shadow: inset 2px 2px 6px 0px rgba(0,0,0,.4) ;
-				opacity: 0.75;
+				background-color: rgba(255, 255, 255, 0.95);
+				padding: 20px 40px;
+				border-radius: 16px;
+				border: none;
+				min-width: 250px;
+				box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+				backdrop-filter: blur(10px);
 			}
 			#toh-boot-logo,
 			#toh-boot-logo IMG{
-				width: 270px;
+				width: 280px;
 			}
 			#toh-boot-icon{
-				margin-bottom: 20px;
+				margin-bottom: 16px;
+				color: #0099d9;
 			}
 
 			#toh-boot-logo{
 				animation: 0.7s bounce 2s infinite;
+				filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
 			}
 			@keyframes bounce {
 				0% {
@@ -137,7 +138,7 @@
 				50% {
 					transform: translateY(-70px);
 					animation-timing-function: ease-in;
-					opacity: 0.8;
+					opacity: 0.9;
 				}
 				85% {
 					transform: translateY(-50px);
@@ -334,7 +335,7 @@
 			<div id="toh-footer" class="row">
 				<div id="toh-footer-bg">
 					<div class="container">
-						This project (version <b class="js-toh-app" data-prop="version">-</b>) is available at <a href="https://github.com/openwrt/toh-openwrt-org/" target="_blank">Github</a>. Made with love by <a href="https://github.com/soif" target="_blank">Soif</a> and all <a href="https://github.com/openwrt/toh-openwrt-org/graphs/contributors" target="_blank">contributors</a>.
+						This project (version <b class="js-toh-app" data-prop="version">-</b>) is available on <a href="https://github.com/openwrt/toh-openwrt-org/" target="_blank" rel="noopener">GitHub</a>. Made with <i class="fa-solid fa-heart" style="color: #ff6b6b;"></i> by <a href="https://github.com/soif" target="_blank" rel="noopener">Soif</a> and all <a href="https://github.com/openwrt/toh-openwrt-org/graphs/contributors" target="_blank" rel="noopener">contributors</a>.
 					</div>
 				</div>
 			</div>
