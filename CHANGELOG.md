@@ -1,8 +1,10 @@
 # CHANGELOG
 
-## Version 1.80b1 - 2026-07-xx
+## Version 1.80b2 - 2026-07-xx
 * docs: fix typos and grammar in README
 * ci: add Dependabot configuration
+* deps: upgrade Bootstrap, jQuery and FontAwesome
+* correct typos in labels and improve tips box layout
 
 
 ## Version 1.79 - 2026-05-19
