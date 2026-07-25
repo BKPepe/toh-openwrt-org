@@ -173,10 +173,10 @@ let toh_colStyles = {
     vlan:								{title: "VLAN",			headerTooltip: 'has VLAN?',						width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatYesNo,		formatterParams: undefined},
     whereavailable:						{title: "Where to Buy",	headerTooltip: 'Where to Buy',					width: 120,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     wlandriver:							{title: "WLAN Driver",	headerTooltip: 'WLAN Driver',					width: 80,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    wlan24ghz:							{title: "2.4Ghz",		headerTooltip: 'WLAN 2.4 Ghz',					width: 55,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    wlan50ghz:							{title: "5.0Ghz",		headerTooltip: 'WLAN 5.0 Ghz',					width: 60,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    wlan60ghz:							{title: "6.0Ghz",		headerTooltip: 'WLAN 6.0 Ghz',					width: 55,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    wlan600ghz:							{title: "60Ghz",		headerTooltip: 'WLAN 60 Ghz',					width: 55,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
+    wlan24ghz:							{title: "2.4 GHz",		headerTooltip: 'WLAN 2.4 GHz',					width: 55,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
+    wlan50ghz:							{title: "5.0 GHz",		headerTooltip: 'WLAN 5.0 GHz',					width: 60,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
+    wlan60ghz:							{title: "6.0 GHz",		headerTooltip: 'WLAN 6.0 GHz',					width: 55,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
+    wlan600ghz:							{title: "60 GHz",		headerTooltip: 'WLAN 60 GHz',					width: 55,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
     wlanhardware:						{title: "WLAN Hardware",headerTooltip: 'WLAN Hardware',					width: 120,	hozAlign: 'left',	sorter: 'array',	frozen: false,	formatter: _formatArray,		formatterParams: undefined},
     wlancomments:						{title: "WLAN Comments",headerTooltip: 'WLAN Comments',					width: 100,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     wikideviurl:						{title: "Wiki",			headerTooltip: 'Wiki Page',						width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'fa-solid fa-book', ttip:'Wiki Page'}, 		headerFilter: false, tooltip: false},
@@ -445,7 +445,7 @@ let toh_filterGroups={
 	},
 
 	wifi:{
-		title:"Wifi",
+		title:"Wi-Fi",
 		members:[
 			'antennas',
 			'wifi_b',
@@ -462,7 +462,7 @@ let toh_filterGroups={
 		members:[
 			'memory_minimum',
 			'memory_more',
-			'memory_confort',
+			'memory_comfort',
 		],
 	},
 
@@ -641,8 +641,8 @@ let toh_filterFeatures={
 		only: "memory",
 	},
 
-	memory_confort:{
-		title:		"Confort",
+	memory_comfort:{
+		title:		"Comfort",
 		description:"at least 128MB Flash & 128MB RAM",
 		type:		"normal",
 		filters:[
@@ -732,7 +732,7 @@ let toh_filterFeatures={
 
 	port_sata:{
 		title:		"SATA",
-		description:"with STATA port",
+		description:"with SATA port",
 		type:		"normal",
 		filters:[
 			{field:	"sataports", 	type:">=",	value:'1'},
@@ -837,8 +837,8 @@ let toh_filterFeatures={
 	},
 
 	type_wifiap:{
-		title:		"Wifi AP",
-		description:"Wifi AP",
+		title:		"Wi-Fi AP",
+		description:"Wi-Fi AP",
 		type:		"normal",
 		filters:[
 			{field:	"devicetype", 	type:"like",	value:'Wifi AP'},
@@ -847,8 +847,8 @@ let toh_filterFeatures={
 	},
 
 	type_wifirouter:{
-		title:		"Wifi Router",
-		description:"Wifi Router",
+		title:		"Wi-Fi Router",
+		description:"Wi-Fi Router",
 		type:		"normal",
 		filters:[
 			{field:	"devicetype", 	type:"like",	value:'Wifi Router'},
@@ -868,8 +868,8 @@ let toh_filterFeatures={
 
 
 	wifi_b:{
-		title:		"Wifi: B",
-		description:"with 802.11b (Wifi1)",
+		title:		"Wi-Fi: B",
+		description:"with 802.11b (Wi-Fi 1)",
 		type:		"normal",
 		filters:[
 			[
@@ -879,8 +879,8 @@ let toh_filterFeatures={
 	},
 
 	wifi_g:{
-		title:		"Wifi: G",
-		description:"with 802.11g (Wifi3)",
+		title:		"Wi-Fi: G",
+		description:"with 802.11g (Wi-Fi 3)",
 		type:		"normal",
 		filters:[
 			[
@@ -891,8 +891,8 @@ let toh_filterFeatures={
 
 
 	wifi_n:{
-		title:		"Wifi: N",
-		description:"with 802.11n (Wifi4)",
+		title:		"Wi-Fi: N",
+		description:"with 802.11n (Wi-Fi 4)",
 		type:		"normal",
 		filters:[
 			[
@@ -903,8 +903,8 @@ let toh_filterFeatures={
 	},
 
 	wifi_ac:{
-		title:		"Wifi: AC",
-		description:"with 802.11ac (Wifi5)",
+		title:		"Wi-Fi: AC",
+		description:"with 802.11ac (Wi-Fi 5)",
 		type:		"normal",
 		filters:[
 			{field:	"wlan50ghz", 	type:"like",	value:'ac'},
@@ -912,8 +912,8 @@ let toh_filterFeatures={
 	},
 
 	wifi_ax:{
-		title:		"Wifi: AX",
-		description:"with 802.11ax (Wifi6)",
+		title:		"Wi-Fi: AX",
+		description:"with 802.11ax (Wi-Fi 6)",
 		type:		"normal",
 		filters:[
 			[
@@ -925,8 +925,8 @@ let toh_filterFeatures={
 	},
 
 	wifi_be:{
-		title:		"Wifi: BE",
-		description:"with 802.11be (Wifi7)",
+		title:		"Wi-Fi: BE",
+		description:"with 802.11be (Wi-Fi 7)",
 		type:		"normal",
 		filters:[
 			[
@@ -1012,7 +1012,7 @@ let toh_filterPresets={
 	
 	minimum_1664_ac_avail: {
 		title:"Mini, AC, Avail.",
-		description:"At least 16MB Flash & 64MB RAM + AC Wifi + Available",
+		description:"At least 16MB Flash & 64MB RAM + AC Wi-Fi + Available",
 		orig_url:"",
 		filters:[],
 		features:[
@@ -1024,7 +1024,7 @@ let toh_filterPresets={
 
 	minimum_1664_ac_gbit_avail: {
 		title:"Mini, AC, Gbit, Avail.",
-		description:"At least 16MB Flash & 64MB RAM + AC Wifi + 1Gb Eth. + Available",
+		description:"At least 16MB Flash & 64MB RAM + AC Wi-Fi + 1Gb Eth. + Available",
 		orig_url:"https://openwrt.org/toh/views/toh_available_864_ac-wifi_gbit-eth",
 		filters:[],
 		features:[
@@ -1037,7 +1037,7 @@ let toh_filterPresets={
 
 	minimum_1664_ac_gbit_avail_ant: {
 		title:"Mini, AC, Gbit, Avail., Ant.",
-		description:"At least 16MB Flash & 64MB RAM + AC Wifi + 1Gb Eth. + Available + Antennas",
+		description:"At least 16MB Flash & 64MB RAM + AC Wi-Fi + 1Gb Eth. + Available + Antennas",
 		orig_url:"https://openwrt.org/toh/views/toh_available_864_dual-wifi_gbit_extant",
 		filters:[],
 		features:[
@@ -1051,7 +1051,7 @@ let toh_filterPresets={
 
 	minimum_1664_ax_gbit_avail: {
 		title:"Mini, AX, Gbit, Avail.",
-		description:"At least 16MB Flash & 64MB RAM + AX Wifi + 1Gb Eth. + Available",
+		description:"At least 16MB Flash & 64MB RAM + AX Wi-Fi + 1Gb Eth. + Available",
 		orig_url:"",
 		filters:[],
 		features:[
@@ -1064,7 +1064,7 @@ let toh_filterPresets={
 
 	more_864_ac_gbit_avail: {
 		title:"More, AC, Gbit, Avail.",
-		description:"At least 64MB Flash & 128MB RAM + AC Wifi + 1Gb Eth. + Available",
+		description:"At least 64MB Flash & 128MB RAM + AC Wi-Fi + 1Gb Eth. + Available",
 		orig_url:"",
 		filters:[],
 		features:[
@@ -1077,7 +1077,7 @@ let toh_filterPresets={
 
 	more_864_ax_gbit_avail: {
 		title:"More, AX, Gbit, Avail.",
-		description:"At least 64MB Flash & 128MB RAM + AX Wifi + 1Gb Eth. + Available",
+		description:"At least 64MB Flash & 128MB RAM + AX Wi-Fi + 1Gb Eth. + Available",
 		orig_url:"",
 		filters:[],
 		features:[

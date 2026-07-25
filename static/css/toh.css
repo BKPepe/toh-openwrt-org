@@ -323,9 +323,10 @@ body,
 	margin-bottom: 50px;
 }
 #toh-info .toh-box{
-	margin-bottom: 10px;
-	padding: 1px 10px 10px 10px;
+	margin-bottom: 15px;
+	padding: 15px 20px;
 	font-size: 13px;
+	border-radius: 6px;
 }
 
 
@@ -333,12 +334,21 @@ body,
 
 #toh-tips{
 	margin-top: 10px;
+	border-left: 4px solid #00a3e1;
 }
 #toh-tips H4{
-	color: #555;
+	color: #0081b3;
+	margin-top: 0;
+	margin-bottom: 10px;
+	font-weight: 600;
+}
+#toh-tips H4 I{
+	margin-right: 6px;
 }
 #toh-tips LI{
-	color: #777;
+	color: #555;
+	line-height: 1.5;
+	margin-bottom: 4px;
 }
 #toh-tips UL,
 #toh-changelog-latest UL,
