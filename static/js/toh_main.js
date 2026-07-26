@@ -1531,6 +1531,8 @@ $(document).ready(function () {
 	// keep the columns filling the window as it is resized
 	$(window).on('resize', scheduleTableWidthSpread);
 
+	buildViewSwitch();
+
 	// a card shows the device name only, until it is tapped open ------------
 	$(document).on('click', '#toh-table .tabulator-row', function(e){
 		if(!isMobileLayout()){
@@ -2389,7 +2391,31 @@ function tabuRowFormatter(row){
 
 // Is the viewport narrow enough for the card layout ? ------------
 function isMobileLayout(){
+	// the phone layout shows a deliberately small set of columns, so leave a way
+	// back to the full table for anyone who wants it
+	if(getUrlParameter(toh_prefs.p_desktop) == '1'){
+		return false;
+	}
 	return window.innerWidth <= toh_prefs.mobile_width;
+}
+
+// Offer the other layout at the foot of the page -----------------
+function buildViewSwitch(){
+	var forced=getUrlParameter(toh_prefs.p_desktop) == '1';
+	var params=new URLSearchParams(window.location.search);
+	var label='';
+	if(forced){
+		params.delete(toh_prefs.p_desktop);
+		label='<i class="fa-solid fa-mobile-screen"></i> Back to the phone layout';
+	}
+	else{
+		params.set(toh_prefs.p_desktop, '1');
+		label='<i class="fa-solid fa-table"></i> Show the full table';
+	}
+	var query=params.toString();
+	$('#toh-view-switch A')
+		.attr('href', window.location.pathname + (query ? '?' + query : ''))
+		.html(label);
 }
 
 // Spread the width left over on a wide screen -------------------

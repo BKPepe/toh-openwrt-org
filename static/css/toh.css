@@ -72,6 +72,17 @@ BODY.toh-loading #toh-page{
 #toh-header-bg{
 	padding: 4px 0;
 	position: relative;
+	/* A flex row rather than floats, so the search sits next to the title for as
+	   long as it fits and drops below only when it genuinely does not. The float
+	   layout had to be undone at a fixed width, which pushed the search onto a
+	   second line while most of the header was still empty. */
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+}
+#toh-header-right{
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 #toh-header,
@@ -248,9 +259,6 @@ BODY.toh-loading #toh-page{
 }
 
 @media screen and (max-width: 1065px) {
-	#toh-header-title{
-		float: none;
-	}
 	#toh-header-bg,
 	#toh-header-right,
 	#toh-header h1{
@@ -267,7 +275,8 @@ BODY.toh-loading #toh-page{
 		padding-top: 5px;
 	}
 	#toh-header-right{
-		padding-left: 130px;
+		/* no floated logo to clear any more */
+		padding-left: 0;
 		padding-right: 20px;
 	}
 
@@ -2011,8 +2020,11 @@ BODY.branch-dev #toh-dev-badge{
 @media screen and (max-width: 767px) {
 
 	BODY.toh-mobile #toh-offcanvas-toggle{
-		display: inline-block;
-		margin: 8px;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 40px;
+		margin: 0;
 	}
 
 	/* the panels were built to sit side by side across a wide page */
@@ -2267,4 +2279,40 @@ BODY.branch-dev #toh-dev-badge{
 	display: inline-flex;
 	align-items: center;
 	min-height: 28px;
+}
+
+
+/* Layout switch --------------------------------------------- */
+/* The phone layout shows a small set of columns on purpose. This offers the
+   full table to anyone who would rather pan around it, and the way back. */
+
+#toh-mobile-bar,
+#toh-view-switch{
+	display: none;
+}
+#toh-view-switch A{
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 40px;
+	padding: 0 14px;
+	color: #0081b3;
+	font-size: 14px;
+	text-decoration: none;
+}
+
+@media screen and (max-width: 767px) {
+	/* at the top, where it is seen: at the foot of the page it sat below every
+	   card, more than two screens down */
+	#toh-mobile-bar{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		flex-wrap: wrap;
+		padding: 4px 8px;
+	}
+	#toh-view-switch{
+		display: block;
+	}
 }

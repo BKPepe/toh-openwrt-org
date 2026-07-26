@@ -46,6 +46,7 @@ const toh_prefs={
 	p_columns:		'columns',			//name of the columns URL parameter
 	p_brand:		'brand',			//name of the brand search URL parameter
 	p_model:		'model',			//name of the model search URL parameter
+	p_desktop:		'desktop',			//name of the URL parameter forcing the full table on a phone
 
 	cook_prefix:	'toh_',				// the cookie's prefix,
 	cook_duration:	3600*24*730,		// the cookie's duration (in sec),
