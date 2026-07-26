@@ -487,6 +487,28 @@ let toh_filterGroups={
 		],
 	},
 
+	ram:{
+		title:"RAM",
+		style:"buttons",
+		members:[
+			'ram_32',
+			'ram_64',
+			'ram_128',
+			'ram_256',
+		],
+	},
+
+	flash:{
+		title:"Flash",
+		style:"buttons",
+		members:[
+			'flash_8',
+			'flash_16',
+			'flash_32',
+			'flash_128',
+		],
+	},
+
 	memory:{
 		title:"Memory",
 		members:[
@@ -647,6 +669,86 @@ let toh_filterFeatures={
 			{field:	"gpios", 	type:"!=",	value: null},
 			{field:	"gpios", 	type:"!=",	value:'-'},
 		],
+	},
+
+	ram_32:{
+		title:		"32+",
+		description:"at least 32MB RAM",
+		type:		"normal",
+		filters:[
+			{field:	"rammb", 		type:">=",		value:32},
+		],
+		only: "ram",
+	},
+
+	ram_64:{
+		title:		"64+",
+		description:"at least 64MB RAM",
+		type:		"normal",
+		filters:[
+			{field:	"rammb", 		type:">=",		value:64},
+		],
+		only: "ram",
+	},
+
+	ram_128:{
+		title:		"128+",
+		description:"at least 128MB RAM",
+		type:		"normal",
+		filters:[
+			{field:	"rammb", 		type:">=",		value:128},
+		],
+		only: "ram",
+	},
+
+	ram_256:{
+		title:		"256+",
+		description:"at least 256MB RAM",
+		type:		"normal",
+		filters:[
+			{field:	"rammb", 		type:">=",		value:256},
+		],
+		only: "ram",
+	},
+
+	flash_8:{
+		title:		"8+",
+		description:"at least 8MB Flash",
+		type:		"normal",
+		filters:[
+			{field:	"flashmb", 	type:"flash>=",	value:8},
+		],
+		only: "flash",
+	},
+
+	flash_16:{
+		title:		"16+",
+		description:"at least 16MB Flash",
+		type:		"normal",
+		filters:[
+			{field:	"flashmb", 	type:"flash>=",	value:16},
+		],
+		only: "flash",
+	},
+
+	flash_32:{
+		title:		"32+",
+		description:"at least 32MB Flash",
+		type:		"normal",
+		filters:[
+			{field:	"flashmb", 	type:"flash>=",	value:32},
+		],
+		only: "flash",
+	},
+
+	flash_128:{
+		title:		"128+",
+		description:"at least 128MB Flash",
+		type:		"normal",
+		filters:[
+			{field:	"flashmb", 	type:"flash>=",	value:128},
+		],
+		only: "flash",
 	},
 
 	memory_minimum:{

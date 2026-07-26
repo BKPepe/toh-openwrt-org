@@ -117,13 +117,44 @@ function buildFiltersPresets(){
 function buildFiltersFeatures(){
 	tmp_html='';
 	for (const group in toh_filterGroups){
-		tmp_html +=htmlGroup(toh_filterGroups[group].title,group,'filt');
-		toh_filterGroups[group].members.forEach(filt => {
+		var set=toh_filterGroups[group];
+		// a group whose options are steps of one value reads better as a row of
+		// buttons than as a column of checkboxes
+		if(set.style == 'buttons'){
+			tmp_html +=htmlFilterButtonGroup(set.title,group,set.members);
+			continue;
+		}
+		tmp_html +=htmlGroup(set.title,group,'filt');
+		set.members.forEach(filt => {
 			tmp_html +=htmlFilterDiv(toh_filterFeatures[filt],filt,true);
 		});
 		tmp_html +="</ul>\n</div>\n";
 	}
 	$('#toh-filters-features-content').html(tmp_html);
+}
+
+// Formats one group of features as a row of buttons ------------------
+// The inputs keep the markup the rest of the filter code looks for: a
+// checkbox carrying data-key and data-only inside .toh-filter-feature. Only
+// their presentation differs, so checking, clearing and the 'only' grouping
+// all keep working untouched.
+function htmlFilterButtonGroup(title,group,members){
+	var html='<div class="toh-group toh-filtgroup toh-filtgroup-buttons" data-group="'+group+'">'+"\n";
+	html +='<div class="toh-group-title toh-filtgroup-title"><a href="#" class="view-link"><i class="fa-solid fa-filter"></i> '+title+'</a></div>'+"\n";
+	html +='<div class="toh-filter toh-filter-feature toh-filter-buttons">';
+	html +='<div class="btn-group btn-group-sm" role="group" aria-label="'+title+'">';
+	members.forEach(function(key){
+		var filt=toh_filterFeatures[key];
+		if(!filt){
+			return;
+		}
+		var only=(typeof filt.only =='string') ? filt.only : '';
+		var id='toh-featbtn-'+key;
+		html +='<input type="checkbox" class="btn-check" id="'+id+'" data-key="'+key+'" data-only="'+only+'" autocomplete="off">';
+		html +='<label class="btn btn-outline-primary" for="'+id+'" title="'+makeFeatureDescription(key)+'">'+filt.title+'</label>';
+	});
+	html +='</div></div>'+"\n</div>\n";
+	return html;
 }
 
 // Formats one Filter description -------------------------------------
@@ -1511,6 +1542,13 @@ $(document).ready(function () {
 		}
 		$(this).toggleClass('toh-card-open');
 	});
+
+	// on a phone the filter and column panels are worth more than the screen
+	// space they cost, so move them into the drawer. Moving the node keeps the
+	// handlers already bound inside it, so nothing has to be rewired.
+	if(isMobileLayout()){
+		$('#toh-offcanvas-body').append($('#toh-top'));
+	}
 
 	// handles Image Preview on hover ----------------------------------------
 	var $container = $('#toh-image-preview');

@@ -1998,3 +1998,273 @@ BODY.branch-dev #toh-dev-badge{
 	flex: 1 1 100%;
 	min-width: 0;
 }
+
+
+/* Mobile filters drawer ------------------------------------- */
+/* The button and the drawer only exist below the mobile breakpoint; on a
+   desktop #toh-top stays where it is and the button is hidden. */
+
+#toh-offcanvas-toggle{
+	display: none;
+}
+
+@media screen and (max-width: 767px) {
+
+	BODY.toh-mobile #toh-offcanvas-toggle{
+		display: inline-block;
+		margin: 8px;
+	}
+
+	/* the panels were built to sit side by side across a wide page */
+	BODY.toh-mobile #toh-offcanvas #toh-top,
+	BODY.toh-mobile #toh-offcanvas .toh-top-block{
+		display: block;
+		width: auto;
+		float: none;
+		margin: 0 0 10px 0;
+		border: 0;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-top-container{
+		position: static;
+		width: auto;
+		max-height: none;
+	}
+	BODY.toh-mobile #toh-offcanvas #toh-top-buttons{
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-buttons-left,
+	BODY.toh-mobile #toh-offcanvas .toh-buttons-right{
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		float: none;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-but{
+		margin: 0;
+	}
+}
+
+
+/* Filters drawer contents ----------------------------------- */
+/* The panels inside the drawer were laid out for a wide page: floated blocks,
+   12px rows and controls a finger cannot hit. This makes them a plain stack of
+   full width, tappable rows. Only inside the drawer, so the desktop panels are
+   untouched. */
+
+@media screen and (max-width: 767px) {
+
+	/* the two section headers open the panels, so they should look like it */
+	BODY.toh-mobile #toh-offcanvas .toh-top-title{
+		background: #f1f5f9;
+		border: 1px solid #e2e8f0;
+		border-radius: 6px;
+		margin-bottom: 8px;
+		padding: 0;
+		min-height: 0;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-top-title-left{
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		float: none;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-top-title-toggle{
+		flex: 1 1 auto;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 48px;
+		padding: 0 12px;
+		font-size: 15px;
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	/* saved preset slots are a power feature driven by tooltips and modifier
+	   clicks, neither of which exists on a touch screen */
+	BODY.toh-mobile #toh-offcanvas .toh-upresets{
+		display: none;
+	}
+
+	/* this option box is floated to the side of a wide panel */
+	BODY.toh-mobile #toh-offcanvas #toh-filters-options{
+		float: none;
+		width: auto;
+		margin: 0 0 12px 0;
+		padding: 10px 12px;
+		border: 1px solid #e2e8f0;
+		border-radius: 6px;
+		background: #f8fafc;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-options-radios label,
+	BODY.toh-mobile #toh-offcanvas .toh-options-radios div{
+		min-height: 34px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	/* one filter per row: name first, what it does underneath */
+	BODY.toh-mobile #toh-offcanvas .toh-filter-feature{
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1px;
+		padding: 7px 4px;
+		border-bottom: 1px solid #f1f5f9;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filter-feature .toh-filter-title{
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+		font-size: 15px;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filter-feature .toh-filter-title INPUT{
+		width: 20px;
+		height: 20px;
+		flex: 0 0 auto;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filter-feature .toh-filter-description{
+		font-size: 12px;
+		color: #64748b;
+		padding-left: 30px;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filter-feature .toh-filter-button{
+		text-decoration: none;
+	}
+
+	/* the presets read the same way: name, then what it selects */
+	BODY.toh-mobile #toh-offcanvas .toh-filter-preset{
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 2px;
+		padding: 6px 4px;
+		border-bottom: 1px solid #f1f5f9;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filter-preset .toh-filter-title{
+		width: 100%;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filter-preset .toh-filter-button{
+		display: flex;
+		align-items: center;
+		min-height: 38px;
+		width: 100%;
+		padding: 0 10px;
+		border-radius: 6px;
+		font-size: 14px;
+		text-decoration: none;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filter-preset .toh-filter-description{
+		font-size: 12px;
+		color: #64748b;
+		padding-left: 10px;
+	}
+
+	/* group headings inside a panel */
+	BODY.toh-mobile #toh-offcanvas .toh-group-title{
+		margin: 14px 0 4px 0;
+		font-size: 13px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: .04em;
+		color: #64748b;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-group UL{
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	/* column presets and the clear buttons, at a size a thumb can hit */
+	BODY.toh-mobile #toh-offcanvas .toh-view,
+	BODY.toh-mobile #toh-offcanvas .toh-but{
+		display: inline-flex;
+		align-items: center;
+		min-height: 40px;
+		padding: 0 14px;
+		margin: 0 6px 6px 0;
+		border-radius: 6px;
+		font-size: 14px;
+	}
+	BODY.toh-mobile #toh-offcanvas #toh-cols-presets,
+	BODY.toh-mobile #toh-offcanvas #toh-top-buttons{
+		display: flex;
+		flex-wrap: wrap;
+		padding-top: 6px;
+	}
+}
+
+
+/* Filter button groups -------------------------------------- */
+/* Groups marked style:"buttons" in toh_filterGroups render as a row of
+   Bootstrap buttons instead of a column of checkboxes: the options are steps
+   of one value, so picking one of them reads better than ticking a box. */
+
+.toh-filtgroup-buttons{
+	margin-bottom: 10px;
+}
+.toh-filtgroup-buttons .toh-filter-buttons{
+	padding: 2px 0 4px 0;
+}
+.toh-filtgroup-buttons .btn-group .btn{
+	--bs-btn-color: #0081b3;
+	--bs-btn-border-color: #b8dcea;
+	--bs-btn-hover-bg: #0099d9;
+	--bs-btn-hover-border-color: #0099d9;
+	--bs-btn-active-bg: #0081b3;
+	--bs-btn-active-border-color: #0081b3;
+	--bs-btn-font-size: 12px;
+	padding: 3px 10px;
+}
+
+@media screen and (max-width: 767px) {
+	/* in the drawer there is room to make them properly tappable */
+	BODY.toh-mobile #toh-offcanvas .toh-filtgroup-buttons .btn-group{
+		width: 100%;
+	}
+	BODY.toh-mobile #toh-offcanvas .toh-filtgroup-buttons .btn-group .btn{
+		flex: 1 1 0;
+		/* a comfortable tap target */
+		min-height: 44px;
+		padding: 10px 6px;
+		--bs-btn-font-size: 14px;
+	}
+}
+
+
+/* Filter and preset rows ------------------------------------ */
+/* These sizes hold at every width. The panel used to pack its filters into
+   17px rows with 13px checkboxes, which is awkward with a mouse as well, so
+   the phone is not the only place worth fixing. The drawer takes it further
+   below, where a finger rather than a pointer does the aiming. */
+
+.toh-filter-feature,
+.toh-filter-preset{
+	padding: 2px 4px;
+}
+.toh-filter-feature .toh-filter-title,
+.toh-filter-preset .toh-filter-title{
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 26px;
+}
+.toh-filter-feature .toh-filter-title INPUT{
+	width: 16px;
+	height: 16px;
+	flex: 0 0 auto;
+}
+.toh-filter-description{
+	color: #64748b;
+}
+#toh-cols-presets a.toh-view,
+#toh-top-buttons .toh-but,
+#toh-filters-presets .toh-filter-button{
+	display: inline-flex;
+	align-items: center;
+	min-height: 28px;
+}
