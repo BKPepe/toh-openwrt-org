@@ -415,6 +415,22 @@
 					</section>
 
 
+					<!-- Comparison ------------------------------------------------------
+						Shown instead of the table, and addressable as ?compare=id,id so a
+						comparison can be linked to.
+					-->
+					<section id="toh-compare-panel" class="toh-card toh-hidden">
+						<div id="toh-compare-head">
+							<div>
+								<h2>Compare devices</h2>
+								<p id="toh-compare-sub"><b id="toh-compare-diffcount">0</b> rows differ</p>
+							</div>
+							<a href="#" class="toh-but" id="toh-compare-close"><svg class="toh-ico" aria-hidden="true"><use href="#i-x"></use></svg> Back to the table</a>
+						</div>
+						<div id="toh-compare-body"></div>
+					</section>
+
+
 					<div id="toh-upreset-popup-save" class="toh-hidden">
 						<input type="text" size="10" placeholder="name">
 						<div class="toh-desc-mini">(up to <b id="toh-upreset-popup-max">8</b> characters)</div>
@@ -461,6 +477,20 @@
 					Made with <svg class="toh-ico toh-ico-heart" aria-hidden="true"><use href="#i-heart"></use></svg> by <a href="https://github.com/soif" target="_blank" rel="noopener">Soif</a> and all <a href="https://github.com/openwrt/toh-openwrt-org/graphs/contributors" target="_blank" rel="noopener">contributors</a>.
 				</div>
 			</footer>
+
+			<!-- Compare tray : rides above the page while devices are picked ------- -->
+			<div id="toh-compare-tray" class="toh-hidden">
+				<div class="toh-compare-tray-inner">
+					<span id="toh-compare-label">Comparing <b id="toh-compare-count">0</b></span>
+					<div id="toh-compare-chips"></div>
+					<div id="toh-compare-tray-actions">
+						<a href="#" class="toh-but" id="toh-compare-reset">Clear</a>
+						<button type="button" class="toh-but toh-but-primary" id="toh-compare-open" disabled>
+							<svg class="toh-ico" aria-hidden="true"><use href="#i-table-columns-split"></use></svg> Compare
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

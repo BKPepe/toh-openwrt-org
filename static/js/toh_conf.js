@@ -184,6 +184,7 @@ let toh_colStyles = {
     VIRT_firm:							{title: "Firmware",		headerTooltip: 'Firmware Selector Page',		width: 5,	hozAlign: 'center',	sorter: undefined,	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'cloud-download', ttip:'Firmware Selector Page'}, 		headerFilter: false, tooltip: false},
     VIRT_hwdata:						{title: "HwData",		headerTooltip: 'Hardware Data Page',			width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'database', ttip:'Hardware Data Page'}, 		headerFilter: false, tooltip: false},
     VIRT_edit:							{title: "Edit",			headerTooltip: 'Edit HwData Page',				width: 10,	hozAlign: 'center',	sorter: undefined,	frozen: true,	formatter: _formatEditHwData,	formatterParams: undefined,		tooltip: false, headerFilter: false, headerSort: false, download: false}, 
+    VIRT_compare:						{title: "Cmp",			headerTooltip: 'Pick devices to compare',		width: 34,	hozAlign: 'center',	sorter: undefined,	frozen: true,	formatter: _formatCompare,		formatterParams: undefined,		tooltip: false, headerFilter: false, headerSort: false, download: false}, 
 };
 
 
@@ -199,6 +200,7 @@ let toh_colGroups={
 		name: 'Main',
 		fields:[
 			'VIRT_edit',
+			'VIRT_compare',
 			'brand',
 			'model',
 		]
@@ -1140,6 +1142,9 @@ function _formatLink(cell, params, onRendered) {
 }
 function _formatLinkCommit(cell, params, onRendered) {
 	return FormatterLinkCommit(cell, params, onRendered);
+}
+function _formatCompare(cell, formatterParams, onRendered) {
+	return FormatterCompare(cell, formatterParams, onRendered);
 }
 function _formatEditHwData(cell, formatterParams, onRendered) {
 	return FormatterEditHwData(cell, formatterParams, onRendered);
