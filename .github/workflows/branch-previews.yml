@@ -1,0 +1,130 @@
+name: Branch previews
+
+# Publishes a browsable copy of every branch to GitHub Pages, so changes can be
+# tried on a phone without running a server locally.
+#
+# The site is plain static files and every asset path in index.html is relative,
+# so a branch works unchanged from a subdirectory.
+#
+# A push only triggers workflows that exist on the branch being pushed, and this
+# file deliberately lives on the default branch alone, to keep it out of feature
+# branches and their pull requests. Feature branches are therefore picked up by
+# the schedule, or by running this workflow by hand after pushing one.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it half way
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Assemble one directory per branch
+        env:
+          # branches to publish, newest interesting ones first
+          PREVIEW_GLOBS: 'develop feature/* fix/*'
+          ROOT_BRANCH: develop
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
+
+          mkdir -p public
+          branches=""
+          for glob in $PREVIEW_GLOBS; do
+            found=$(git for-each-ref --format='%(refname:short)' "refs/remotes/origin/$glob" \
+                    | sed 's|^origin/||' || true)
+            branches="$branches $found"
+          done
+          # de-duplicate while keeping order
+          branches=$(printf '%s\n' $branches | awk '!seen[$0]++')
+
+          echo "Publishing branches:"
+          printf '  %s\n' $branches
+
+          # the root of the site is the main development branch
+          if git rev-parse --verify "origin/$ROOT_BRANCH" >/dev/null 2>&1; then
+            git archive "origin/$ROOT_BRANCH" | tar -x -C public
+          fi
+
+          rows=""
+          for branch in $branches; do
+            slug=$(printf '%s' "$branch" | tr '/' '-')
+            mkdir -p "public/preview/$slug"
+            git archive "origin/$branch" | tar -x -C "public/preview/$slug"
+            subject=$(git log -1 --format='%s' "origin/$branch")
+            when=$(git log -1 --format='%ad' --date=short "origin/$branch")
+            rows="$rows<tr><td><a href=\"preview/$slug/\">$branch</a></td><td>$subject</td><td>$when</td></tr>"
+          done
+
+          # a small index so the previews are reachable without typing URLs
+          mkdir -p public/preview
+          cat > public/preview/index.html <<HTML
+          <!doctype html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>ToH branch previews</title>
+          <style>
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+                 margin:0;padding:24px;background:#f5f5f5;color:#1e293b}
+            h1{font-size:20px;margin:0 0 4px}
+            p{color:#64748b;font-size:14px;margin:0 0 20px}
+            table{border-collapse:collapse;width:100%;max-width:900px;background:#fff;
+                  box-shadow:0 1px 3px rgba(0,0,0,.1);border-radius:6px;overflow:hidden}
+            td,th{padding:10px 12px;text-align:left;font-size:14px;border-bottom:1px solid #eee}
+            th{background:#0099d9;color:#fff}
+            tr:last-child td{border-bottom:0}
+            a{color:#0081b3}
+            @media(max-width:600px){td:nth-child(3),th:nth-child(3){display:none}}
+          </style>
+          </head>
+          <body>
+          <h1>OpenWrt ToH branch previews</h1>
+          <p>Built $(date -u '+%Y-%m-%d %H:%M UTC'). Each row is that branch, served as it is.</p>
+          <table>
+          <tr><th>Branch</th><th>Latest commit</th><th>Date</th></tr>
+          $rows
+          </table>
+          </body>
+          </html>
+          HTML
+
+          # Pages runs the artifact through Jekyll otherwise, which drops files
+          # and directories whose name starts with an underscore
+          touch public/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
