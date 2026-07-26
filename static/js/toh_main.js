@@ -1224,7 +1224,7 @@ function SetDefaults(){
 	tmp_value=getUrlParameter(toh_prefs.p_columns);
 	if(tmp_value == ''){
 		// set preset
-		tmp_value=getUrlParameterOrDefault(toh_prefs.p_view, toh_prefs.def_view);
+		tmp_value=getUrlParameterOrDefault(toh_prefs.p_view, isMobileLayout() ? toh_prefs.mobile_view : toh_prefs.def_view);
 		if(getColumnSet(tmp_value).length == 0){
 			tmp_value=toh_prefs.def_view;
 		}
@@ -1296,8 +1296,10 @@ function UpdateCountCols(){
 		html='<b>'+selected+"</b> / ";
 	}
 	html +="<i>"+total+"</i>";
-	$('.toh-count-cols-full').html(html);	
+	$('.toh-count-cols-full').html(html);
 	//$('.toh-count-cols').html(selected);
+	// the visible set just changed, so the leftover width did too
+	scheduleTableWidthSpread();
 }
 
 // jquery shake effect -----------------------------------------------------
@@ -1473,7 +1475,42 @@ $(document).ready(function () {
 	$('#toh-header-title H1 A').attr('href',window.location.pathname);
 
 	// initialize table  -----------------------------------------------------
+	// cards are taller than a table row and each one differs, so the fixed row
+	// height and the virtual renderer that relies on it have to go
+	if(isMobileLayout()){
+		$('BODY').addClass('toh-mobile');
+		delete tabulatorOptions.rowHeight;
+		tabulatorOptions.renderVertical='basic';
+		// let the cards make the table as tall as they need and the page scroll,
+		// instead of trapping them in a nested scroll area on a small screen
+		delete tabulatorOptions.height;
+		delete tabulatorOptions.maxHeight;
+		// ten page buttons do not fit next to the row counter on a phone
+		tabulatorOptions.paginationButtonCount=3;
+		// tapping the name opens the card, so it must not also open the details
+		// popup. The columns are built from these definitions further down.
+		['brand', 'model'].forEach(function(field){
+			if(toh_colStyles[field]){
+				delete toh_colStyles[field].clickPopup;
+			}
+		});
+	}
 	tabuTable = new Tabulator("#toh-table", tabulatorOptions);
+
+	// keep the columns filling the window as it is resized
+	$(window).on('resize', scheduleTableWidthSpread);
+
+	// a card shows the device name only, until it is tapped open ------------
+	$(document).on('click', '#toh-table .tabulator-row', function(e){
+		if(!isMobileLayout()){
+			return;
+		}
+		// let the links inside an open card do their own job
+		if($(e.target).closest('a').length){
+			return;
+		}
+		$(this).toggleClass('toh-card-open');
+	});
 
 	// handles Image Preview on hover ----------------------------------------
 	var $container = $('#toh-image-preview');
@@ -2293,6 +2330,89 @@ function tabuRowFormatter(row){
 	if(data.brand === "OpenWrt"){
 		row.getElement().classList.add("brand-owrt");
 	}
+
+	// the card layout has no header to read the column names from, so each cell
+	// carries its own title and the stylesheet prints it in front of the value
+	if(isMobileLayout()){
+		row.getCells().forEach(function(cell){
+			var el=cell.getElement();
+			var title=cell.getColumn().getDefinition().title;
+			if(title){
+				el.setAttribute('data-label', title);
+			}
+			// a card listing every field this device says nothing about is mostly
+			// empty rows, so drop them (:empty misses cells holding only markup)
+			if(el.textContent.trim() === '' && el.children.length === 0){
+				el.classList.add('toh-cell-empty');
+			}
+		});
+	}
+}
+
+// Is the viewport narrow enough for the card layout ? ------------
+function isMobileLayout(){
+	return window.innerWidth <= toh_prefs.mobile_width;
+}
+
+// Spread the width left over on a wide screen -------------------
+// Every column is pinned to the pixel width set in toh_colStyles, so a wide
+// screen simply leaves a gap on the right. Hand that gap to the columns that
+// hold text. Widths are always recomputed from the configured ones, so this
+// can run again on every resize without drifting.
+function spreadUnusedTableWidth(){
+	if(typeof tabuTable == 'undefined' || !tabuTable || isMobileLayout()){
+		return;
+	}
+	var holder=document.querySelector('#toh-table .tabulator-tableholder');
+	if(!holder || !holder.clientWidth){
+		return;
+	}
+
+	var used=0;
+	var grow=[];
+	tabuTable.getColumns().forEach(function(col){
+		if(!col.isVisible()){
+			return;
+		}
+		var field=col.getField();
+		if(toh_colsGrow.indexOf(field) > -1){
+			// measure these from the configured width, never from the width a
+			// previous pass gave them, or they would creep wider on every call
+			var base=(toh_colStyles[field] && toh_colStyles[field].width) ? toh_colStyles[field].width : col.getWidth();
+			grow.push({col: col, base: base});
+			used+=base;
+		}
+		else{
+			// what a fixed column really occupies, which is not always its setting
+			used+=col.getWidth();
+		}
+	});
+	if(!grow.length){
+		return;
+	}
+
+	// a couple of pixels short of the edge, so this never trips the scrollbar
+	var slack=holder.clientWidth - used - 4;
+	var baseTotal=grow.reduce(function(sum, item){ return sum + item.base; }, 0);
+
+	grow.forEach(function(item){
+		var width=item.base;
+		if(slack > 0 && baseTotal > 0){
+			// share it out in proportion to the configured width, but cap the growth
+			// so a single field does not become a canyon on a very wide monitor
+			width=Math.min(item.base * toh_prefs.col_grow_max, item.base + Math.floor(slack * item.base / baseTotal));
+		}
+		if(Math.round(item.col.getWidth()) != width){
+			item.col.setWidth(width);
+		}
+	});
+}
+
+// Recompute the column widths, once things settle ---------------
+var toh_width_timer=null;
+function scheduleTableWidthSpread(){
+	clearTimeout(toh_width_timer);
+	toh_width_timer=setTimeout(spreadUnusedTableWidth, 120);
 }
 
 

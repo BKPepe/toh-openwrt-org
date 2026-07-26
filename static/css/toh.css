@@ -428,13 +428,15 @@ body,
 }
 @media screen and (max-width: 1600px) {
 	#toh-tips UL,
-	#toh-changelog-latest UL {
+	#toh-changelog-latest UL,
+	#toh-changelog-previous {
 		column-count: 2;
 	}
 }
 @media screen and (max-width: 900px) {
 	#toh-tips UL,
-	#toh-changelog-latest UL {
+	#toh-changelog-latest UL,
+	#toh-changelog-previous {
 		column-count: 1;
 	}
 }
@@ -1799,4 +1801,200 @@ BODY.branch-dev #toh-dev-badge{
 /* Smooth Transitions ############################################################# */
 * {
 	transition-timing-function: ease;
+}
+
+/* Mobile card layout ---------------------------------------- */
+/* Below toh_prefs.mobile_width the JS adds BODY.toh-mobile, drops the fixed
+   row height and lets the page scroll, and tags every cell with data-label.
+   Here each row becomes a card that prints those labels next to the values. */
+
+@media screen and (max-width: 767px) {
+
+	BODY.toh-mobile #toh-table,
+	BODY.toh-mobile #toh-table-container{
+		height: auto !important;
+		max-height: none !important;
+		overflow: visible !important;
+	}
+	BODY.toh-mobile #toh-table .tabulator-tableholder{
+		height: auto !important;
+		max-height: none !important;
+		overflow: visible !important;
+	}
+
+	/* the labels live in the cards now */
+	BODY.toh-mobile #toh-table .tabulator-header{
+		display: none;
+	}
+
+	BODY.toh-mobile #toh-table .tabulator-table{
+		display: block;
+		width: auto !important;
+	}
+
+	/* one device = one card */
+	BODY.toh-mobile #toh-table .tabulator-row{
+		display: block;
+		position: relative;
+		cursor: pointer;
+		width: auto !important;
+		height: auto !important;
+		min-height: 0;
+		margin: 0 0 10px 0;
+		padding: 4px 0;
+		border: 1px solid #ddd;
+		border-radius: 6px;
+		background-color: #fff;
+		box-shadow: 0 1px 3px rgba(0,0,0,.08);
+	}
+	BODY.toh-mobile #toh-table .tabulator-row.tabulator-selectable:hover{
+		background-color: #fff;
+	}
+
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell{
+		display: flex;
+		align-items: baseline;
+		width: auto !important;
+		height: auto !important;
+		min-height: 0;
+		/* Tabulator pins the frozen columns with inline styles */
+		position: static !important;
+		left: auto !important;
+		text-align: left !important;
+		white-space: normal;
+		overflow: visible;
+		border: 0;
+		border-bottom: 1px solid #f0f0f0;
+		padding: 4px 10px;
+		line-height: 1.4;
+	}
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell:last-child{
+		border-bottom: 0;
+	}
+
+	/* a card should not list the fields this device says nothing about */
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell.toh-cell-empty{
+		display: none;
+	}
+
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell::before{
+		content: attr(data-label);
+		flex: 0 0 40%;
+		padding-right: 10px;
+		color: #666;
+		font-weight: 600;
+		font-size: 12px;
+	}
+
+	/* brand and model are the card's heading, so they need no label and stay
+	   visible while the rest of the fields are folded away */
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell[tabulator-field="brand"]::before,
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell[tabulator-field="model"]::before{
+		content: none;
+	}
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell[tabulator-field="brand"]{
+		font-size: 12px;
+		color: #64748b;
+		padding-bottom: 0;
+		border-bottom: 0;
+	}
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell[tabulator-field="model"]{
+		font-size: 16px;
+		font-weight: 600;
+		padding-top: 1px;
+	}
+
+	/* folded: brand and model share one line, so the list stays scannable and a
+	   screenful is a list of devices rather than one and a half cards */
+	BODY.toh-mobile #toh-table .tabulator-row:not(.toh-card-open){
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		padding: 7px 28px 7px 10px;
+	}
+	BODY.toh-mobile #toh-table .tabulator-row:not(.toh-card-open) .tabulator-cell{
+		display: none;
+	}
+	BODY.toh-mobile #toh-table .tabulator-row:not(.toh-card-open) .tabulator-cell[tabulator-field="brand"],
+	BODY.toh-mobile #toh-table .tabulator-row:not(.toh-card-open) .tabulator-cell[tabulator-field="model"]{
+		display: inline-flex;
+		width: auto !important;
+		border-bottom: 0;
+		padding: 0 6px 0 0;
+	}
+
+	/* the chevron says the card opens */
+	BODY.toh-mobile #toh-table .tabulator-row::after{
+		content: "\f078";
+		font-family: "Font Awesome 6 Free";
+		font-weight: 900;
+		position: absolute;
+		top: 50%;
+		right: 12px;
+		transform: translateY(-50%);
+		font-size: 12px;
+		color: #94a3b8;
+	}
+	BODY.toh-mobile #toh-table .tabulator-row.toh-card-open::after{
+		content: "\f077";
+		top: 18px;
+		transform: none;
+	}
+
+	/* the edit pencil is a table affordance, not a card one */
+	BODY.toh-mobile #toh-table .tabulator-row .tabulator-cell[tabulator-field="VIRT_edit"]{
+		display: none;
+	}
+
+	/* the pager sits on one line by default and is what makes the page scroll
+	   sideways; let it wrap and keep the controls tappable */
+	BODY.toh-mobile #toh-table .tabulator-footer .tabulator-footer-contents{
+		flex-wrap: wrap;
+		justify-content: center;
+		row-gap: 6px;
+	}
+	BODY.toh-mobile #toh-table .tabulator-footer .tabulator-paginator{
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+	}
+	BODY.toh-mobile #toh-table .tabulator-footer .tabulator-page{
+		margin: 0;
+		padding: 5px 9px;
+	}
+	BODY.toh-mobile #toh-table .tabulator-footer .tabulator-page-counter{
+		width: 100%;
+		text-align: center;
+	}
+
+	/* the tips and changelog boxes sit in a .row that keeps its desktop gutters */
+	BODY.toh-mobile #toh-info .toh-box{
+		padding: 12px 14px;
+	}
+}
+
+
+/* Page overflow ------------------------------------------- */
+
+/* #toh-footer carries .row but sits outside the page's .container-fluid, so the
+   row's negative gutters have nothing to cancel out and hang over both edges.
+   That is what makes the page scroll sideways on a phone. */
+#toh-footer{
+	margin-left: 0;
+	margin-right: 0;
+}
+/* it then nests a .container, which adds a second gutter inside that */
+#toh-footer .container{
+	width: auto;
+	max-width: none;
+}
+
+/* .row is a flex container in Bootstrap 5, so these plain wrappers became flex
+   items sized by their content instead of filling the row as they used to */
+#toh-header-bg,
+#toh-footer-bg{
+	flex: 1 1 100%;
+	min-width: 0;
 }

@@ -58,6 +58,9 @@ const toh_prefs={
 	tooltip_upreset:"User Presets: Click to Load, Shift-click to save, Alt-click to delete",
 	boot_hide:		true,				// Hides the boot overlay, once inited
 	preload: 		true,				// Preload images (in background)
+	col_grow_max:	3,					// a column never grows past this many times its set width
+	mobile_width:	767,				// at or below this viewport width, rows are drawn as cards
+	mobile_view:	'mobile',			// Columns View Preset used by default on that width
 
 };
 
@@ -102,6 +105,18 @@ let tabulatorOptions={
 // ##########################################################################################################################################################
 // Columns Styles ###########################################################################################################################################
 // ##########################################################################################################################################################
+// Columns allowed to absorb the width left over on a wide screen. Icon, count
+// and yes/no columns are deliberately not listed: they are sized to their
+// content on purpose and stretching them would only add white space.
+const toh_colsGrow=[
+	'brand', 'model', 'version', 'cpu', 'target', 'devicetype', 'bootloader',
+	'switch', 'wlanhardware', 'wlandriver', 'whereavailable', 'availability',
+	'comments', 'wlancomments', 'commentinstallation', 'commentrecovery',
+	'commentsnetworkports', 'commentsusbsataports', 'commentsavports',
+	'unsupported_functions', 'supportedcurrentrel', 'supportedsincerel',
+	'serialconnectionparameters',
+];
+
 let colFilterMin={headerFilterPlaceholder:"Minimum", headerFilterFunc:">="}; //, headerFilter:"number"
 let colMutatorInt={ mutator: function(value) {return parseInt(value);} };
 
@@ -361,6 +376,19 @@ let toh_colPresets={
 		'firmwareopenwrtinstallurl',
 		'firmwareopenwrtupgradeurl',
 		...toh_colGroups.links.fields,
+		'picture',
+	],
+	mobile:	[
+		...toh_colGroups.base.fields,
+		'version',
+		'cpu',
+		'flashmb',
+		'rammb',
+		'wlan24ghz',
+		'wlan50ghz',
+		'VIRT_firm',
+		'VIRT_hwdata',
+		'availability',
 		'picture',
 	],
 	mini:	[
@@ -1103,6 +1131,7 @@ let toh_filterPresets={
 function _rfRowFormatter(row){
 	return tabuRowFormatter(row);
 }
+
 
 function _cPopupModel(e, cell, onRendered) {
 	return CellPopupModel(e, cell, onRendered)
