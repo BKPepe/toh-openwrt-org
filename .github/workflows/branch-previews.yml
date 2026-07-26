@@ -72,7 +72,8 @@ jobs:
             git archive "origin/$branch" | tar -x -C "public/preview/$slug"
             subject=$(git log -1 --format='%s' "origin/$branch")
             when=$(git log -1 --format='%ad' --date=short "origin/$branch")
-            rows="$rows<tr><td><a href=\"preview/$slug/\">$branch</a></td><td>$subject</td><td>$when</td></tr>"
+            # this index is written into public/preview/, so link relative to it
+            rows="$rows<tr><td><a href=\"$slug/\">$branch</a></td><td>$subject</td><td>$when</td></tr>"
           done
 
           # a small index so the previews are reachable without typing URLs
