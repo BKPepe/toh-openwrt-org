@@ -37,8 +37,8 @@ const toh_prefs={
 	def_features: 	'',					// default Features (list ',' separated)
 	def_view: 		'normal',			// default Columns View Preset
 	def_columns: 	'',					// default Columns (list ',' separated)
-	def_show_filters: false,				// default show filters
-	def_show_views: false,				// default show columns views
+	def_show_filters: true,				// default show filters (the sidebar section)
+	def_show_views: false,				// default show columns views (the toolbar menu)
 
 	p_filter:		'filter',			//name of the filter preset URL parameter
 	p_features:		'features',			//name of the filter features URL parameter
@@ -62,7 +62,7 @@ const toh_prefs={
 // options for tabulator table (tabuTable) ---------------------
 let tabulatorOptions={
 	importFormat:"array",
-	rowHeight:26,
+	rowHeight:34,
 	maxHeight:'100%',
 	height: "100%",
 
@@ -109,7 +109,7 @@ let toh_colStyles = {
     model:								{title: "Model",		headerTooltip: 'Model',							width: 100,	hozAlign: 'left',	sorter: undefined,	frozen: true,	formatter: undefined,			formatterParams: undefined,		clickPopup: _cPopupModel},
 
     audioports:							{title: "Audio",		headerTooltip: 'Audio Ports',					width: 80,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    availability:						{title: "Availability",	headerTooltip: 'Availability',					width: 110,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
+    availability:						{title: "Availability",	headerTooltip: 'Availability',					width: 130,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: _formatAvailability,	formatterParams: undefined},
     bluetooth:							{title: "BT",			headerTooltip: 'Bluetooth version',				width: 40,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     bootloader:							{title: "Boot",			headerTooltip: 'BootLoader',					width: 60,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     buttoncount:						{title: "Butt.",		headerTooltip: 'Button count',					width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined,		...colFilterMin},
@@ -124,30 +124,30 @@ let toh_colStyles = {
     cpumhz:								{title: "Mhz",			headerTooltip: 'CPU Speed (MHz)',				width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined,		...colFilterMin, ...colMutatorInt },
     detachableantennas:					{title: "D.Ant.",		headerTooltip: 'Detachable Antennas',			width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined}  ,
     deviceid:							{title: "Device ID",	headerTooltip: 'Device ID',						width: 120,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    devicepage:							{title: "Page",			headerTooltip: 'Device Information Page',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-circle-info', ttip:'Information Page'},		headerFilter: false, tooltip: false},
+    devicepage:							{title: "Page",			headerTooltip: 'Device Information Page',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'info', ttip:'Information Page'},		headerFilter: false, tooltip: false},
     devicetype:							{title: "Device Type",	headerTooltip: 'Device Type',					width: 120,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},	
     ethernet100mports:					{title: "Eth 100",		headerTooltip: 'Ethernet 100M ports',			width: 52,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatCleanEmpty,	formatterParams: undefined,		...colFilterMin},
     ethernet1gports:					{title: "Eth 1G",		headerTooltip: 'Ethernet 1G ports',				width: 50,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatCleanEmpty,	formatterParams: undefined,		...colFilterMin},
     ethernet2_5gports:					{title: "Eth 2.5G",		headerTooltip: 'Ethernet 2.5G ports',			width: 60,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatCleanEmpty,	formatterParams: undefined,		...colFilterMin},
     ethernet5gports:					{title: "Eth 5G",		headerTooltip: 'Ethernet 5G ports',				width: 50,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatCleanEmpty,	formatterParams: undefined,		...colFilterMin},
     ethernet10gports:					{title: "Eth 10G",		headerTooltip: 'Ethernet 10G ports',			width: 55,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatCleanEmpty,	formatterParams: undefined,		...colFilterMin},
-    fccid:								{title: "FCC",			headerTooltip: 'FCC ID',						width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams:  {icon: 'fa-solid fa-landmark', ttip:'FCC Search Page'},					headerFilter: false, tooltip: false},
-    firmwareoemstockurl:				{title: "Stock",		headerTooltip: 'OEM Stock Firmware',			width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-file-arrow-down', ttip:'Download Stock Firmware'},		headerFilter: false, tooltip: false},
-    firmwareopenwrtinstallurl:			{title: "Install",		headerTooltip: 'OpenWrt Firmware Install',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-download', ttip:'Download Installation Firmware'},		headerFilter: false, tooltip: false},
-    firmwareopenwrtupgradeurl:			{title: "Upgrade",		headerTooltip: 'OpenWrt Firmware Upgrade',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-download', ttip:'Download Upgrade Firmware'}, 		headerFilter: false, tooltip: false},
-    firmwareopenwrtsnapshotinstallurl:	{title: "S.Install",	headerTooltip: 'OpenWrt Snapshot Install',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-camera', ttip:'Download Installation Snapshot'},	headerFilter: false, tooltip: false},
-    firmwareopenwrtsnapshotupgradeurl:	{title: "S.Upgrade",	headerTooltip: 'OpenWrt Snapshot Upgrade',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-camera', ttip:'Download Upgrade Snapshot'},	headerFilter: false, tooltip: false},
+    fccid:								{title: "FCC",			headerTooltip: 'FCC ID',						width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams:  {icon: 'landmark', ttip:'FCC Search Page'},					headerFilter: false, tooltip: false},
+    firmwareoemstockurl:				{title: "Stock",		headerTooltip: 'OEM Stock Firmware',			width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'file-down', ttip:'Download Stock Firmware'},		headerFilter: false, tooltip: false},
+    firmwareopenwrtinstallurl:			{title: "Install",		headerTooltip: 'OpenWrt Firmware Install',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'download', ttip:'Download Installation Firmware'},		headerFilter: false, tooltip: false},
+    firmwareopenwrtupgradeurl:			{title: "Upgrade",		headerTooltip: 'OpenWrt Firmware Upgrade',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'download', ttip:'Download Upgrade Firmware'}, 		headerFilter: false, tooltip: false},
+    firmwareopenwrtsnapshotinstallurl:	{title: "S.Install",	headerTooltip: 'OpenWrt Snapshot Install',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'camera', ttip:'Download Installation Snapshot'},	headerFilter: false, tooltip: false},
+    firmwareopenwrtsnapshotupgradeurl:	{title: "S.Upgrade",	headerTooltip: 'OpenWrt Snapshot Upgrade',		width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'camera', ttip:'Download Upgrade Snapshot'},	headerFilter: false, tooltip: false},
     flashmb:							{title: "Flash",		headerTooltip: 'Flash Memory (Mb)',				width: 90,	hozAlign: 'right',	sorter: _sorterFlash,frozen: false,	formatter: _formatArray,		formatterParams: undefined, headerFilter:_hFilterFlash, headerFilterFunc:_hFilFuncFlash, headerFilterLiveFilter:false },	// , cellClick:cellDebug  , headerFilterEmptyCheck:HeaderFilterEmpty
-    forumsearch:						{title: "S.Forum",		headerTooltip: 'Search in Forums',				width: 40,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-regular fa-user', ttip:'Forum Search Page', prefix:toh_urls.forum_search},	headerFilter: false, tooltip: false},	
-    gitsearch:							{title: "Git Search",	headerTooltip: 'Git Search',					width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-code', ttip:'Github Search Page', prefix:toh_urls.git_search},	headerFilter: false, tooltip: false},	
+    forumsearch:						{title: "S.Forum",		headerTooltip: 'Search in Forums',				width: 40,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'user', ttip:'Forum Search Page', prefix:toh_urls.forum_search},	headerFilter: false, tooltip: false},	
+    gitsearch:							{title: "Git Search",	headerTooltip: 'Git Search',					width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'code', ttip:'Github Search Page', prefix:toh_urls.git_search},	headerFilter: false, tooltip: false},	
     gpios:								{title: "GPIOs",		headerTooltip: 'GPIOs',							width: 40,	hozAlign: 'right',	sorter: 'string',	frozen: false,	formatter: _formatCleanWords,	formatterParams: undefined,		...colFilterMin},
     installationmethods:				{title: "Inst.Method",	headerTooltip: 'Installation method(s)',		width: 90,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},	
     jtag:								{title: "JTAG",			headerTooltip: 'has JTAG?',						width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatYesNo,		formatterParams: undefined},	
     ledcount:							{title: "Leds",			headerTooltip: 'LED count',						width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: _formatCleanEmpty,	formatterParams: undefined,		...colFilterMin},
     modem:								{title: "Modem",		headerTooltip: 'Modem Type',					width: 55,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    oemdevicehomepageurl:				{title: "OEM",			headerTooltip: 'OEM Page',						width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-industry', ttip:'Manufacturer Page'}, 		headerFilter: false, tooltip: false},
+    oemdevicehomepageurl:				{title: "OEM",			headerTooltip: 'OEM Page',						width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'factory', ttip:'Manufacturer Page'}, 		headerFilter: false, tooltip: false},
     outdoor:							{title: "OutDoor",		headerTooltip: 'OutDoor',						width: 40,	hozAlign: 'right',	sorter: 'string',	frozen: false,	formatter: _formatYesNo,		formatterParams: undefined},
-    owrt_forum_topic_url:				{title: "Forum",		headerTooltip: 'Forum Topic',					width: 40,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'fa-solid fa-user', ttip:'Forum Topic Page'}, 		headerFilter: false, tooltip: false},
+    owrt_forum_topic_url:				{title: "Forum",		headerTooltip: 'Forum Topic',					width: 40,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,		formatterParams: {icon: 'user', ttip:'Forum Topic Page'}, 		headerFilter: false, tooltip: false},
     packagearchitecture:				{title: "Pkg Arch",		headerTooltip: 'Package Architecture',			width: 90,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     phoneports:							{title: "Phone",		headerTooltip: 'Phone Ports',					width: 40,	hozAlign: 'right',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
     powersupply:						{title: "Power",		headerTooltip: 'Power Supply',					width: 70,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
@@ -161,7 +161,7 @@ let toh_colStyles = {
     sfp_ports:							{title: "SFP",			headerTooltip: 'SFP Ports',						width: 40,	hozAlign: 'right',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined,		...colFilterMin},
     sfp_plus_ports:						{title: "SFP+",			headerTooltip: 'SFP+ Ports',					width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined,		...colFilterMin},
     subtarget:							{title: "S.Target",		headerTooltip: 'Sub Target',					width: 60,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},	
-    supportedcurrentrel:				{title: "C.Release",	headerTooltip: 'Supported Current Release',		width: 60,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},	
+    supportedcurrentrel:				{title: "C.Release",	headerTooltip: 'Supported Current Release',		width: 100,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: _formatRelease,		formatterParams: undefined},	
     supportedsincecommit:				{title: "Commit",		headerTooltip: 'Supported Since Commit',		width: 54,	hozAlign: 'center',	sorter: undefined,	frozen: false,	formatter: _formatLinkCommit,	formatterParams: {},			tooltip: false},
     supportedsincerel:					{title: "S.Release",	headerTooltip: 'Supported Since Release',		width: 60,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},	
     switch:								{title: "Switch",		headerTooltip: 'Switch',						width: 120,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},	
@@ -179,10 +179,10 @@ let toh_colStyles = {
     wlan600ghz:							{title: "60 GHz",		headerTooltip: 'WLAN 60 GHz',					width: 55,	hozAlign: 'left',	sorter: 'string',	frozen: false,	formatter: undefined,			formatterParams: undefined},
     wlanhardware:						{title: "WLAN Hardware",headerTooltip: 'WLAN Hardware',					width: 120,	hozAlign: 'left',	sorter: 'array',	frozen: false,	formatter: _formatArray,		formatterParams: undefined},
     wlancomments:						{title: "WLAN Comments",headerTooltip: 'WLAN Comments',					width: 100,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
-    wikideviurl:						{title: "Wiki",			headerTooltip: 'Wiki Page',						width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'fa-solid fa-book', ttip:'Wiki Page'}, 		headerFilter: false, tooltip: false},
+    wikideviurl:						{title: "Wiki",			headerTooltip: 'Wiki Page',						width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'book-open', ttip:'Wiki Page'}, 		headerFilter: false, tooltip: false},
 
-    VIRT_firm:							{title: "Firmware",		headerTooltip: 'Firmware Selector Page',		width: 5,	hozAlign: 'center',	sorter: undefined,	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'fa-solid fa-cloud-arrow-down', ttip:'Firmware Selector Page'}, 		headerFilter: false, tooltip: false},
-    VIRT_hwdata:						{title: "HwData",		headerTooltip: 'Hardware Data Page',			width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'fa-solid fa-database', ttip:'Hardware Data Page'}, 		headerFilter: false, tooltip: false},
+    VIRT_firm:							{title: "Firmware",		headerTooltip: 'Firmware Selector Page',		width: 5,	hozAlign: 'center',	sorter: undefined,	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'cloud-download', ttip:'Firmware Selector Page'}, 		headerFilter: false, tooltip: false},
+    VIRT_hwdata:						{title: "HwData",		headerTooltip: 'Hardware Data Page',			width: 35,	hozAlign: 'center',	sorter: 'string',	frozen: false,	formatter: _formatLink,			formatterParams: {icon: 'database', ttip:'Hardware Data Page'}, 		headerFilter: false, tooltip: false},
     VIRT_edit:							{title: "Edit",			headerTooltip: 'Edit HwData Page',				width: 10,	hozAlign: 'center',	sorter: undefined,	frozen: true,	formatter: _formatEditHwData,	formatterParams: undefined,		tooltip: false, headerFilter: false, headerSort: false, download: false}, 
 };
 
@@ -435,6 +435,7 @@ toh_colPresets.normal = toh_colPresets.normal.filter(item => !normal_cols_to_rem
 let toh_filterGroups={
 	network:{
 		title:"Network",
+		icon:"network",
 		members:[
 			'eth_1g',
 			'eth_2d5g',
@@ -446,6 +447,7 @@ let toh_filterGroups={
 
 	wifi:{
 		title:"Wi-Fi",
+		icon:"wifi",
 		members:[
 			'antennas',
 			'wifi_b',
@@ -459,6 +461,7 @@ let toh_filterGroups={
 
 	memory:{
 		title:"Memory",
+		icon:"memory-stick",
 		members:[
 			'memory_minimum',
 			'memory_more',
@@ -468,6 +471,7 @@ let toh_filterGroups={
 
 	port:{
 		title:"Ports",
+		icon:"usb",
 		members:[
 			'port_audio',
 			'gpio',
@@ -480,6 +484,7 @@ let toh_filterGroups={
 
 	features:{
 		title:"Features",
+		icon:"star",
 		members:[
 			'bluetooth',
 			'modem_cellular',
@@ -491,6 +496,7 @@ let toh_filterGroups={
 
 	type:{
 		title:"Types",
+		icon:"tag",
 		members:[
 			'type_board',
 			'type_modem',
@@ -503,6 +509,7 @@ let toh_filterGroups={
 
 	power:{
 		title:"Power",
+		icon:"zap",
 		members:[
 			'power_bat',
 			'power_mains',
@@ -513,6 +520,7 @@ let toh_filterGroups={
 	
 	misc:{
 		title:"Misc",
+		icon:"ellipsis",
 		members:[
 			'available',
 
@@ -521,6 +529,7 @@ let toh_filterGroups={
 
 	admin:{
 		title:"Administration",
+		icon:"shield",
 		members:[
 			'miss_commit',
 			'miss_devpage',
@@ -1149,4 +1158,10 @@ function _formatArray(cell, formatterParams, onRendered) {
 }
 function _formatYesNo(cell, formatterParams, onRendered) {
 	return FormatterYesNo(cell, formatterParams, onRendered);
+}
+function _formatRelease(cell, formatterParams, onRendered) {
+	return FormatterRelease(cell, formatterParams, onRendered);
+}
+function _formatAvailability(cell, formatterParams, onRendered) {
+	return FormatterAvailability(cell, formatterParams, onRendered);
 }

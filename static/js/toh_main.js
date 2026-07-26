@@ -21,6 +21,29 @@ const toh_img_urls=[];	// holds all images urls
 let toh_firmwares=[]; 				// holds all releases
 let toh_firmwares_fetched=false;	// confirm if releases have been fetched
 
+const toh_table_min_height=360;		// never shrink the table below this, however short the window
+const toh_filters_visible_groups=3;	// filter groups shown before "Show more filters"
+
+
+
+
+// Icons ######################################################################################################################
+
+// Render a Lucide icon from the sprite inlined at the top of index.html.
+// 'spec' is a sprite name, optionally followed by extra CSS classes:
+//    tohIcon('download')            -> <svg class="toh-ico">…</svg>
+//    tohIcon('triangle-alert error') -> <svg class="toh-ico error">…</svg>
+function tohIcon(spec){
+	const [name, ...extra]=String(spec).trim().split(/\s+/);
+	const cls=['toh-ico', ...extra].join(' ');
+	return '<svg class="'+cls+'" aria-hidden="true"><use href="#i-'+name+'"></use></svg>';
+}
+
+// Point an already rendered icon at another sprite symbol -------------------
+function tohSetIcon($svg, name){
+	$svg.find('use').attr('href','#i-'+name);
+}
+
 
 
 
@@ -116,12 +139,25 @@ function buildFiltersPresets(){
 // display Filters Features ------------------------------------------------
 function buildFiltersFeatures(){
 	tmp_html='';
+	let index=0;
+	let hidden=0;
 	for (const group in toh_filterGroups){
-		tmp_html +=htmlGroup(toh_filterGroups[group].title,group,'filt');
+		tmp_html +=htmlGroup(toh_filterGroups[group].title,group,'filt',index);
 		toh_filterGroups[group].members.forEach(filt => {
 			tmp_html +=htmlFilterDiv(toh_filterFeatures[filt],filt,true);
 		});
 		tmp_html +="</ul>\n</div>\n";
+		if(index >= toh_filters_visible_groups){
+			hidden +=toh_filterGroups[group].members.length;
+		}
+		index++;
+	}
+	if(hidden > 0){
+		tmp_html +='<a href="#" class="toh-filters-more">'
+			+ tohIcon('chevron-down')
+			+ '<span class="toh-filters-more-show">Show ' + hidden + ' more filters</span>'
+			+ '<span class="toh-filters-more-hide">Show fewer filters</span>'
+			+ '</a>';
 	}
 	$('#toh-filters-features-content').html(tmp_html);
 }
@@ -276,6 +312,7 @@ function applyCheckedFeatures(){
 	showLoading();
 	filters=reorderFilters(filters); // certainly not needed, but eases debug
 	tabuTable.setFilter(filters);
+	updateFilterGroupState(true);	// open whichever groups ended up active
 }
 
 
@@ -360,21 +397,36 @@ function htmlColumnLine(field,col,checked){
 }
 
 // Make a column Group  ------------------------------------------
-function htmlGroup(title,group,type){
+// 'index' is the group's position, used to decide what starts hidden behind
+// the "Show more filters" toggle.
+function htmlGroup(title,group,type,index=0){
 	let html='';
 	let names={
 		view: 'toh-viewgroup',
 		filt: 'toh-filtgroup',
 	};
 	let icons={
-		view: 'fa-solid fa-square',
-		filt: 'fa-solid fa-filter',
+		view: 'square',			// swapped for the tri-state box by updateColGroupIcons()
+		filt: 'filter',
 	};
 	let ttip={
 		view: 'Toggle group visibility',
 		filt: '',
 	};
-	html +='<div class="toh-group '+names[type]+'" data-group="'+group+'">'+"\n"+'<div class="toh-group-title '+names[type]+'-title"><a href="#" class="view-link" title="'+ttip[type]+'"><i class="'+icons[type]+'"></i> '+title+'</a></div>'+"\n";
+	// filter groups carry their own icon (Wi-Fi, memory, ports, ...)
+	let icon=icons[type];
+	let extra='';
+	if(type=='filt'){
+		if(toh_filterGroups[group] && toh_filterGroups[group].icon){
+			icon=toh_filterGroups[group].icon;
+		}
+		// 40-odd rows at once make the rail far too long to scan, so everything
+		// past the first few groups hides behind "Show more filters"
+		if(index >= toh_filters_visible_groups){
+			extra=' toh-filtgroup-extra';
+		}
+	}
+	html +='<div class="toh-group '+names[type]+extra+'" data-group="'+group+'">'+"\n"+'<div class="toh-group-title '+names[type]+'-title"><a href="#" class="view-link" title="'+ttip[type]+'">'+tohIcon(icon)+' '+title+'<span class="toh-filtgroup-count"></span></a></div>'+"\n";
 	html +='<ul>'+"\n";
 	return html;
 }
@@ -562,6 +614,25 @@ function applyColumnsFromFilters(){
 	},0);
 }
 
+// Badge each group with how many of its filters are on ---------------------
+// If an active filter sits in a group that is hidden behind "Show more
+// filters", reveal the rest so it is never silently applied out of sight.
+function updateFilterGroupState(reveal_active=false){
+	var hidden_active=false;
+	$('.toh-filtgroup').each(function(){
+		const $group=$(this);
+		const checked=$group.find('.toh-filter-feature INPUT:checked').length;
+		$group.find('.toh-filtgroup-count').text(checked ? checked : '');
+		$group.toggleClass('has-active', checked > 0);
+		if(checked > 0 && $group.hasClass('toh-filtgroup-extra')){
+			hidden_active=true;
+		}
+	});
+	if(reveal_active && hidden_active){
+		$('#toh-filters-features-content').addClass('show-all');
+	}
+}
+
 // Update group Icons in the columns block ------------------
 function updateColGroupIcons(){
 	myLogFunc();
@@ -570,15 +641,15 @@ function updateColGroupIcons(){
 		var checked=$(this).find('.toh-col-column INPUT:checked').length;
 		var icon ="";
 		if(checked==total){
-			icon='fa-regular fa-square-check';
+			icon='square-check';
 		}
 		else if(checked==0){
-			icon='fa-regular fa-square';
+			icon='square';
 		}
 		else{
-			icon='fa-regular fa-square-minus';
+			icon='square-minus';
 		}
-		$(this).find('.toh-viewgroup-title I').removeClass().addClass(icon);
+		tohSetIcon($(this).find('.toh-viewgroup-title .toh-ico'), icon);
 	});
 }
 
@@ -1160,8 +1231,80 @@ function UpdateCountCols(){
 		html='<b>'+selected+"</b> / ";
 	}
 	html +="<i>"+total+"</i>";
-	$('.toh-count-cols-full').html(html);	
+	$('.toh-count-cols-full').html(html);
 	//$('.toh-count-cols').html(selected);
+}
+
+// Fill the four figures in the page header --------------------------------
+// 'data' is the raw toh.json payload: rows are arrays indexed by data.columns.
+function UpdatePageStats(data){
+	myLogFunc();
+	const rows=data.entries;
+	const col =(name) => data.columns.indexOf(name);
+
+	const i_brand	=col('brand');
+	const i_target	=col('target');
+	const i_release	=col('supportedcurrentrel');
+
+	// a value that is missing, '-' or '?' means "we don't know", not "none"
+	const known=(v) => typeof v === 'string' && v.length > 0 && v !== '-' && v !== '?';
+
+	const brands	=new Set();
+	const targets	=new Set();
+	let   supported	=0;
+
+	rows.forEach(function(row){
+		if(i_brand  > -1 && known(row[i_brand]))	{brands.add(row[i_brand]);}
+		if(i_target > -1 && known(row[i_target]))	{targets.add(row[i_target]);}
+		// 'EOL' means the device dropped off the supported releases
+		if(i_release > -1 && known(row[i_release]) && row[i_release] !== 'EOL'){supported++;}
+	});
+
+	const num=(n) => n.toLocaleString('en-US');
+	$('#toh-stat-devices').text(num(rows.length));
+	$('#toh-stat-supported').text(num(supported));
+	$('#toh-stat-targets').text(num(targets.size));
+	$('#toh-stat-brands').text(num(brands.size));
+}
+
+// Size the table container -------------------------------------------------
+// Two constraints. It should be tall enough for one page of rows, so the
+// pagination is not fighting a half-visible row - every part is measured, since
+// the header grows with the filter inputs and a rendered row is taller than
+// tabulatorOptions.rowHeight by its border. But it must also never be taller
+// than the viewport can show, or a 30-row page runs off a laptop screen; past
+// that the rows scroll inside the table and the header stays put.
+function tohSetTableHeight(size){
+	const $container=$('#toh-table-container');
+	// a row element can exist before it has been laid out, and would measure 0
+	let h_row		=$('#toh-table .tabulator-row').first().outerHeight();
+	if(!h_row || h_row < 8){
+		h_row=tabulatorOptions.rowHeight + 1;	// +1 for the row border
+	}
+	const h_head	=$('#toh-table .tabulator-header').outerHeight()	|| 53;
+	const h_foot	=$('#toh-table .tabulator-footer').outerHeight()	|| 50;
+	const h_scroll	=17;								// horizontal scrollbar
+	const h_chrome	=h_head + h_foot + h_scroll;
+
+	// how much room is left below the toolbar once the card is scrolled up
+	// under the app bar, minus a little breathing space
+	const h_appbar	=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--appbar-h'),10) || 48;
+	const h_toolbar	=$('#toh-toolbar').outerHeight() || 0;
+	const h_avail	=Math.max(toh_table_min_height, window.innerHeight - h_appbar - h_toolbar - 48);
+
+	let rows=parseInt(size,10);
+	if(size === true || size === 'true' || isNaN(rows)){	// "show all rows"
+		rows=tabuTable ? tabuTable.getDataCount("active") : 0;
+	}
+
+	const wanted=Math.ceil(h_chrome + (h_row * rows));
+	const height=Math.min(wanted, Math.ceil(h_avail));
+
+	myLogStr('Table Set height: ' + height + ' (wanted ' + wanted + ', row ' + h_row + ')', 2);
+	$container.height(height);
+	// only let the rows scroll when we actually had to clip the page
+	$('#toh-table .tabulator-tableholder').css('overflow-y', height < wanted ? 'auto' : 'hidden');
+	return height;
 }
 
 // jquery shake effect -----------------------------------------------------
@@ -1341,18 +1484,91 @@ $(document).ready(function () {
 		});
 	});
 
-	//  Click: Toggle Filters Visibility -----------------------------
+	//  Click: Toggle the sidebar Filters section ---------------------
 	$('.toh-filters-but-toggle').on('click',function(e){
 		e.preventDefault();
 		$('#toh-filters-container').toggle();
-		$(this).children('I').toggleClass('fa-caret-right fa-caret-down');
+		$(this).toggleClass('is-open');
 	});
 
-	//  Click: Toggle Views Visibility -------------------------------
+	//  Click: Toggle the Columns toolbar menu -----------------------
 	$('.toh-cols-but-toggle').on('click',function(e){
 		e.preventDefault();
+		e.stopPropagation();
+		closeToolbarMenus('#toh-cols-container');
 		$('#toh-cols-container').toggle();
-		$(this).children('I').toggleClass('fa-caret-right fa-caret-down');
+		$(this).toggleClass('is-open');
+	});
+
+	//  Click: Toggle the Export toolbar menu ------------------------
+	$('.toh-export-but-toggle').on('click',function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		closeToolbarMenus('#toh-bot');
+		$('#toh-bot').toggle();
+		$(this).toggleClass('is-open');
+	});
+
+	// Only one toolbar menu open at a time; 'except' is the panel being toggled.
+	function closeToolbarMenus(except=''){
+		$('.toh-menu').each(function(){
+			const $panel=$(this).find('.toh-menu-panel');
+			if(except && $panel.is(except)){
+				return;
+			}
+			$panel.hide();
+			$(this).find('.toh-menu-but').removeClass('is-open');
+		});
+	}
+
+	$(document).on('click',function(e){
+		if($(e.target).closest('.toh-menu').length === 0){
+			closeToolbarMenus();
+		}
+	});
+	$(document).on('keydown',function(e){
+		if(e.key === 'Escape'){
+			closeToolbarMenus();
+			tohCloseSidebar();
+		}
+	});
+
+	//  Click: Toggle the sidebar drawer (narrow viewports) ----------
+	$('#toh-sidebar-toggle').on('click',function(e){
+		e.preventDefault();
+		$('body').toggleClass('toh-sidebar-open');
+	});
+	$('#toh-sidebar-scrim').on('click',tohCloseSidebar);
+
+	function tohCloseSidebar(){
+		$('body').removeClass('toh-sidebar-open');
+	}
+
+	//  Resize: keep the table inside the viewport -------------------
+	var toh_resize_timer=null;
+	$(window).on('resize',function(){
+		if(!toh_table_inited){
+			return;
+		}
+		clearTimeout(toh_resize_timer);
+		toh_resize_timer=setTimeout(function(){
+			tohSetTableHeight($('.tabulator-page-size').val() || tabulatorOptions.paginationSize);
+		},150);
+	});
+
+	//  Click: Toggle light / dark ----------------------------------
+	// The initial value is applied by the inline script in index.html; here we
+	// only flip it and remember the choice.
+	$('#toh-theme-toggle').on('click',function(e){
+		e.preventDefault();
+		const dark=document.documentElement.getAttribute('data-theme') === 'dark';
+		const next=dark ? 'light' : 'dark';
+		document.documentElement.setAttribute('data-theme', next);
+		try { localStorage.setItem('toh_theme', next); } catch(err) {}
+		// Tabulator caches row heights against the old metrics
+		if(typeof tabuTable !== 'undefined' && toh_table_inited){
+			tabuTable.redraw();
+		}
 	});
 
 	// Fetch content and build table ----------------------------------
@@ -1367,9 +1583,12 @@ $(document).ready(function () {
 				...toh_colStyles[value]
 			}));
 
-			// add vitual (not linked to existing fields) columns 
+			// add vitual (not linked to existing fields) columns
 			var virtualColumns = getVirtualColumns();
 			columns=[...columns, ...virtualColumns];
+
+			// page header figures
+			UpdatePageStats(data);
 
 			//init table with data
 			showLoading();
@@ -1407,10 +1626,15 @@ $(document).ready(function () {
 				if(toh_prefs.boot_hide){
 					$('#toh-boot-overlay').slideUp(500);
 				}
-				
+
+				// the header is only measurable once the columns have rendered,
+				// and the rows only once they have been laid out
+				tohSetTableHeight(tabulatorOptions.paginationSize);
+				requestAnimationFrame(() => tohSetTableHeight(tabulatorOptions.paginationSize));
+
 				ObserveHeaderFiltersAndInitSearch();
 				PreLoadImagesCache();
-			});   
+			});
 		});
 	});
 
@@ -1431,11 +1655,7 @@ $(document).ready(function () {
 
 
 
-	// Header Search ##########################################################################################################
-
-	$('#toh-search-icon I').on('click', function(e){
-		$('#toh-search').toggleClass('toh-hidden');
-	});
+	// Toolbar Search #########################################################################################################
 
 	// Function to toggle clear button visibility
 	function toggleSearchClearButton(field) {
@@ -1477,11 +1697,12 @@ $(document).ready(function () {
 	function ObserveHeaderFiltersAndInitSearch(){
 		$('.toh-search-input').trigger('keyup'); // needed when manually relaoding a page that already have a search query
 
+		// mirror the model/brand header filters back into the toolbar search
 		$('.tabulator-col .tabulator-header-filter INPUT').bind('keyup', function() {
 			const field=$(this).closest('.tabulator-col').attr('tabulator-field');
 			const target=$('.toh-search-input[data-field='+field+']')
 			target.val($(this).val());
-			$('#toh-search').removeClass('toh-hidden');
+			toggleSearchClearButton(field);
 		});
 	}
 
@@ -1629,12 +1850,19 @@ $(document).ready(function () {
 		//setPresetSelectedClass('features');
 		checkFeatureAndClearPreset(key, $(this).is(":checked") );
 		applyCheckedFeatures();
+		updateFilterGroupState();
 	});
 
 	// Click: Feature link ----------------------
 	$('#toh-top-filters').on('click','.toh-filter-title A',function(e){
 		e.preventDefault();
 		var cb=$(this).parent().find('INPUT').trigger('click');
+	});
+
+	// Click: Show / hide the less used filter groups ----------------
+	$('#toh-top-filters').on('click','.toh-filters-more',function(e){
+		e.preventDefault();
+		$('#toh-filters-features-content').toggleClass('show-all');
 	});
 
 	// Click: Replace Option immediately populates columns ----------------------
@@ -1702,6 +1930,13 @@ $(document).ready(function () {
 
 	// Top Buttons ############################################################################################################
 
+	// Toolbar buttons are shown/hidden with a class, not with .show()/.hide():
+	// jQuery would set display:block and break the inline-flex that keeps them
+	// aligned with the Columns and Export buttons next to them.
+	function toggleBut($but, visible){
+		$but.toggleClass('toh-but-shown', !!visible);
+	}
+
 	// -------------------------------------------
 	function toggleFilterClearButVisibility(){
 		myLogFunc();
@@ -1713,42 +1948,22 @@ $(document).ready(function () {
 
 		// filters
 		var cur_filters		=tabuTable.getFilters();
-		if(cur_filters.length==0){
-			$but_clear_filt.hide();
-			$div_filters_title.removeClass('active');
-		}
-		else{
-			$but_clear_filt.show();
-			$div_filters_title.removeClass('active').addClass('active');
-		}
+		toggleBut($but_clear_filt, cur_filters.length>0);
+		$div_filters_title.toggleClass('active', cur_filters.length>0);
+
 		// header filters
 		var cur_headfilters	=tabuTable.getHeaderFilters();
-		if(cur_headfilters.length==0){
-			$but_clear_head.hide();
-		}
-		else{
-			$but_clear_head.show();
-		}
+		toggleBut($but_clear_head, cur_headfilters.length>0);
+
 		// ALL filters
-		if(cur_filters.length>0 && cur_headfilters.length>0 ){
-			$but_clear_all.show();
-		}
-		else{
-			$but_clear_all.hide();
-		}
+		toggleBut($but_clear_all, cur_filters.length>0 && cur_headfilters.length>0);
 	}
 
 	// -------------------------------------------
 	function toggleSortClearButVisibility(){
 		myLogFunc();
-		var $but_clear_sort	=$('.toh-but-clearheadersorts');
 		myLogObj(tabuTable.getSorters(), 'tabu Sorters');
-		if(tabuTable.getSorters().length>0 ){
-			$but_clear_sort.show();
-		}
-		else{
-			$but_clear_sort.hide();
-		}		
+		toggleBut($('.toh-but-clearheadersorts'), tabuTable.getSorters().length>0);
 	}
 
 	// Click: clear header sorts ----------------
@@ -1940,23 +2155,14 @@ $(document).ready(function () {
 			myLogStr('EVENT: pageSizeChange');
 			tableLoadingShow();
 			const size = e.target.value; // Get the selected value from the <select> element
-			const h_head = 53;
-			const h_scroll = 17;
-			const h_foot = 37;
-			const h_line = tabulatorOptions.rowHeight;
-			const height_t = h_head + h_scroll + h_foot + (h_line * size);
-			const height_c = height_t + 0; //(1  for border)
 			last_table_height = tabulatorOptions.rowHeight * size;
-			myLogStr('Page Size: ' + size + ' -> Height: ' + height_t,4);
 			myLogStr('Wanted Table Height: '+ last_table_height,4);
-
 
 			if (toh_table_inited) { // we dont need it when page loads
 				showLoading();
-	
+
 				setTimeout(() => {
-					myLogStr('Table Set height: ' + height_c,2);
-					$('#toh-table-container').height(height_c);
+					tohSetTableHeight(size);
 					//myLogStr('Tabulator Set pagesize ' + size);
 					tabuTable.setPageSize(size == "true" ? true : size);
 					tabuTable.setPage(1);
@@ -1985,7 +2191,7 @@ $(document).ready(function () {
 	// insert spinner icon div
 	tabuTable.on("tableBuilt", function(){
 		myLogStr('EVENT: tableBuilt');
-		$('.tabulator-paginator LABEL').before('<span class="'+toh_loading_class+'" toh-hidden"><i class="fa-solid fa-arrows-rotate fa-spin"></i> </span>');
+		$('.tabulator-paginator LABEL').before('<span class="'+toh_loading_class+'">'+tohIcon('loader-circle toh-ico-spin')+' </span>');
 	});	
 
 	// Intercept click in capture phase
@@ -2059,7 +2265,7 @@ function CellPopupModel(e, cell, onRendered) {
 	var contents = "<div class='toh-details-border'>" +
 		"<div class='toh-details-head'>" +
 			"<b class='toth-details-title'>" + data.brand + " - " + data.model + "</b>" +
-			"<div class='toh-details-close'><i class='fa fa-solid fa-circle-xmark'></i></div>" +
+			"<div class='toh-details-close'>"+tohIcon('circle-x')+"</div>" +
 		"</div>" +
 		"<div class='toh-details-content'>";
 
@@ -2106,7 +2312,20 @@ function CellPopupModel(e, cell, onRendered) {
 				contents += "<div class='toh-details-group'>\n<div class='toh-details-title'>" + obj.name + "</div>\n<table class='toh-details-table'>";
 				done = true;
 			}
-			contents += '<tr><td class="toh-details-key"><a href="#" title="'+ col.headerTooltip +'">' + col.title + "</a></td><td class='toh-details-value'>" + formattedValue + "</td></tr>";
+
+			// Link columns already render a descriptive label ("Hardware Data
+			// Page"), so a key cell next to them would just say the same thing
+			// again in abbreviated form ("HwData"). Give them the full row.
+			if (mycol.formatterParams && mycol.formatterParams.label) {
+				// the flex layout goes on an inner div: making the TD itself a
+				// flex container takes it out of the table and voids the colspan
+				contents += "<tr><td class='toh-details-link' colspan='2'><div class='toh-details-linkrow'>" + formattedValue + "</div></td></tr>";
+				return true;
+			}
+
+			// the popup has room for the real name, unlike the column header
+			var label = col.headerTooltip || col.title;
+			contents += '<tr><td class="toh-details-key"><a href="#" title="'+ col.headerTooltip +'">' + label + "</a></td><td class='toh-details-value'>" + formattedValue + "</td></tr>";
 		});
 		if (done) contents += "</table>\n</div>";
 	});
@@ -2196,10 +2415,9 @@ function FormatterLink(cell, params, onRendered) {
 		id 				= brand + '_' + id.split('_').slice(1).join('-');
 		const target	= row.target + '/' + row.subtarget;
 		if(!toh_firmwares_fetched){
-			//return '<a href="#" title="Failed to fetch firmwares"><i class="fa-solid fa-warning dlerror"></i></a>';
 			params.recursive=true;
 			params.ttip="Failed to fetch firmwares";
-			params.icon="fa-solid fa-warning dlerror";
+			params.icon="triangle-alert dlerror";
 			params.url='#';
 			params.short=true;
 			return FormatterLink(cell,params,onRendered);
@@ -2212,7 +2430,7 @@ function FormatterLink(cell, params, onRendered) {
 		const prefix= params.prefix !=null ? params.prefix : '';
 		const ttip = params.ttip !=null ? params.ttip+device : '';
 		const label= params.label !=null ? params.label : '';
-		const icon = params.icon !=null ? '<i class="fa-fw '+params.icon+'"></i> ' : '';
+		const icon = params.icon !=null ? tohIcon(params.icon)+' ' : '';
 		return '<a href="' + prefix+url + '" target="_blank" title="'+ttip+'" class="tlink '+field+'">' + icon + label + '</a>'
 	} 
 	return '';
@@ -2226,7 +2444,7 @@ function FormatterLinkCommit(cell, params={}, onRendered) {
 		const label=params.label;
 		const commit=value.replace(/.*?;h=/g,'');
 
-		params.icon='fa-solid fa-code-commit';
+		params.icon='git-commit-horizontal';
 		params.ttip='Origin Commit';
 		if(label){params.label=params.ttip;}
 		params.ttip +=" "+commit;
@@ -2235,7 +2453,7 @@ function FormatterLinkCommit(cell, params={}, onRendered) {
 
 		html +="<span class='toh-spacer'></span>";
 
-		params.icon='fa-brands fa-github';
+		params.icon='git-branch';
 		params.ttip='Github Commit';
 		if(label){params.label=params.ttip;}
 		params.ttip +=" "+commit;
@@ -2253,7 +2471,7 @@ function FormatterEditHwData(cell, formatterParams, onRendered) {
 	var value = cell.getRow().getData().deviceid;
 	var title = "Edit " + cell.getRow().getData().model;
 	if (value && value.length > 0) {
-		return '<a href="' + _maketHwDataUrl(value)  + '" target="_blank" title="'+title+'"><i class="fa-solid fa-pencil"></i></a>';
+		return '<a href="' + _maketHwDataUrl(value)  + '" target="_blank" title="'+title+'">'+tohIcon('pencil')+'</a>';
 	} 
 	return value;
 }
@@ -2293,10 +2511,10 @@ function FormatterImages(cell, formatterParams, onRendered) {
 				url=toh_urls.media + value;
 			}
 			if(isGenerigImage(value)){
-				out +='<a href="' + url + '" target="_blank" class="cell-image generic"><i class="fa-fw fa-regular fa-image"></i></a> ';
+				out +='<a href="' + url + '" target="_blank" class="cell-image generic">'+tohIcon('image')+'</a> ';
 			}
 			else{
-				out +='<a href="' + url + '" target="_blank" class="cell-image"><i class="fa-fw fa-solid fa-image"></i></a> ';
+				out +='<a href="' + url + '" target="_blank" class="cell-image">'+tohIcon('image')+'</a> ';
 			}
 
 			// preload images --------
@@ -2354,6 +2572,49 @@ function FormatterArray(cell, formatterParams, onRendered) {
 	return arr;
 }
 // --------------------------------------------------------
+// Renders a coloured status pill: green = shipping release, amber = only
+// snapshot / uncertain, red = end of life.
+function _formatBadge(label, kind){
+	if(label === null || label === undefined || label === '' || label === '-'){
+		return '<span class="toh-badge toh-badge-none">&mdash;</span>';
+	}
+	return '<span class="toh-badge toh-badge-'+kind+'" title="'+label+'">'+label+'</span>';
+}
+
+// "Supported current release" -----------------------------
+function FormatterRelease(cell, formatterParams, onRendered) {
+	const value=cell.getValue();
+	const v=typeof value === 'string' ? value.trim() : value;
+	if(!v || v === '-'){
+		return _formatBadge(null);
+	}
+	if(v.toLowerCase() === 'eol'){
+		return _formatBadge('EOL','dead');
+	}
+	if(v.toLowerCase() === 'snapshot'){
+		return _formatBadge('Snapshot','pending');
+	}
+	return _formatBadge(v,'ok');			// a numbered release: it ships
+}
+
+// "Availability" ------------------------------------------
+function FormatterAvailability(cell, formatterParams, onRendered) {
+	const value=cell.getValue();
+	const v=typeof value === 'string' ? value.trim() : value;
+	if(!v || v === '-'){
+		return _formatBadge(null);
+	}
+	const low=v.toLowerCase();
+	if(low.startsWith('available')){
+		return _formatBadge(v,'ok');
+	}
+	if(low.startsWith('discontinued')){
+		return _formatBadge(v,'dead');
+	}
+	return _formatBadge(v,'pending');		// "unknown <year>" and anything else
+}
+
+// --------------------------------------------------------
 function FormatterYesNo(cell, formatterParams, onRendered) {
 	var value = cell.getValue();
 	var icon='';
@@ -2361,21 +2622,21 @@ function FormatterYesNo(cell, formatterParams, onRendered) {
 		value=value.toLowerCase().trim();
 	}
 	if(value=='yes'){
-		icon='fa-solid fa-check';
+		icon='check toh-mark-yes';
 	}
 	else if(value=='no'){
-		icon='fa-solid fa-xmark';
+		icon='x toh-mark-no';
 	}
 	else if(value=='-'){
-		icon='fa-solid fa-question dash';
+		icon='circle-help toh-mark-unknown dash';
 	}
 	else if(value==''){
-		icon='fa-solid fa-question empty';		
+		icon='circle-help toh-mark-unknown empty';
 	}
 	else{
-		icon='fa-solid fa-question unknown';
+		icon='circle-help toh-mark-unknown unknown';
 	}
-	return '<i class="'+icon+'"></i>';
+	return tohIcon(icon);
 }
 
 

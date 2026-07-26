@@ -1,1622 +1,2238 @@
 /* #####################################################################################################
-##### Enclosing Page ###################################################################################
+##### Design tokens ####################################################################################
 ######################################################################################################## */
 
-/* Modern CSS Variables ------------------------------------- */
 :root {
-	--toh-primary: #0099d9;
-	--toh-primary-dark: #0077b3;
-	--toh-primary-light: #33b5e5;
-	--toh-accent: #00c853;
-	--toh-bg: #f8fafc;
-	--toh-surface: #ffffff;
-	--toh-text: #1e293b;
-	--toh-text-secondary: #64748b;
-	--toh-border: #e2e8f0;
-	--toh-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-	--toh-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-	--toh-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-	--toh-radius: 8px;
-	--toh-radius-lg: 12px;
-	--toh-transition: 0.2s ease;
+	/* neutrals ------------------------------------------------ */
+	--bg:				#fafafa;
+	--surface:			#ffffff;
+	--surface-sunken:	#f9fafb;
+	--sidebar-bg:		#f6f7f9;		/* a shade below the content, so the chrome reads as chrome */
+	--hover:			#f5f5f5;
+	--border:			#e5e7eb;
+	--border-soft:		#f0f1f3;		/* the in-table dividers: present, not loud */
+	--border-strong:	#d1d5db;
+
+	--text:				#111827;
+	--text-muted:		#6b7280;
+	--text-faint:		#9ca3af;
+
+	/* accents -------------------------------------------------- */
+	--primary:			#2563eb;
+	--primary-hover:	#1d4ed8;
+	--primary-soft:		#eff6ff;
+	--primary-ring:		rgba(37, 99, 235, 0.18);
+
+	/* the three filter kinds, echoed on both the buttons and the columns */
+	--filt-sidebar:		#059669;
+	--filt-sidebar-bg:	#ecfdf5;
+	--filt-header:		#4f46e5;
+	--filt-header-bg:	#eef2ff;
+	--filt-all:			#0891b2;
+	--filt-all-bg:		#ecfeff;
+
+	/* status badges -------------------------------------------- */
+	--ok:				#15803d;
+	--ok-bg:			#dcfce7;
+	--pending:			#b45309;
+	--pending-bg:		#fef3c7;
+	--dead:				#b91c1c;
+	--dead-bg:			#fee2e2;
+
+	--danger:			#dc2626;
+	--warn:				#d97706;
+
+	/* shape ---------------------------------------------------- */
+	--r-sm:				6px;
+	--r:				10px;
+	--r-lg:				12px;
+	--shadow-xs:		0 1px 2px rgba(17, 24, 39, 0.05);
+	--shadow-lg:		0 12px 32px rgba(17, 24, 39, 0.12), 0 2px 8px rgba(17, 24, 39, 0.06);
+	--shadow-frozen:	6px 0 8px -6px rgba(17, 24, 39, 0.12);
+
+	--font:				-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+	--appbar-h:			60px;
+	--sidebar-w:		272px;
+	--gutter:			24px;
+	/* the table would otherwise sprawl edge to edge on a wide monitor and the
+	   rows get too long to track with your eye */
+	--shell-max:		1560px;
+
+	--t:				0.15s ease;
+
+	color-scheme: light;
 }
 
-/* ---------------------------------------------------------- */
-html, body {
+/* Dark theme ----------------------------------------------------------------
+	Everything downstream is expressed in the tokens above, so the dark theme is
+	just a token swap. data-theme is stamped on <html> by the inline script in
+	index.html before first paint - resolved from localStorage, falling back to
+	the OS preference - so there is no light flash and no rule duplication here.
+*/
+:root[data-theme="dark"] {
+	--bg:				#0d1117;
+	--surface:			#151b23;
+	--surface-sunken:	#1c2230;
+	--sidebar-bg:		#11161e;
+	--hover:			#1f2530;
+	--border:			#2a323d;
+	--border-soft:		#222a35;
+	--border-strong:	#3a4453;
+
+	--text:				#e6edf3;
+	--text-muted:		#9aa5b1;
+	--text-faint:		#6e7a89;
+
+	--primary:			#589bff;
+	--primary-hover:	#7cb2ff;
+	--primary-soft:		#16233a;
+	--primary-ring:		rgba(88, 155, 255, 0.25);
+
+	--filt-sidebar:		#3ddc97;
+	--filt-sidebar-bg:	#10291f;
+	--filt-header:		#9aa8ff;
+	--filt-header-bg:	#1b1f3a;
+	--filt-all:			#4dd0e1;
+	--filt-all-bg:		#102a30;
+
+	--ok:				#5dd68a;
+	--ok-bg:			#10291c;
+	--pending:			#e3b341;
+	--pending-bg:		#2b2210;
+	--dead:				#ff8080;
+	--dead-bg:			#2d1618;
+
+	--danger:			#ff7b72;
+	--warn:				#e3b341;
+
+	--shadow-xs:		0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-lg:		0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+	--shadow-frozen:	6px 0 8px -6px rgba(0, 0, 0, 0.5);
+
+	color-scheme: dark;
+}
+
+
+/* #####################################################################################################
+##### Base #############################################################################################
+######################################################################################################## */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+/* BODY is the scroll container, not HTML - the details popup is positioned
+   against it. That only works while BODY is exactly viewport height: give it
+   min-height instead and it grows to the full document, HTML clips it, and the
+   page cannot be scrolled at all. */
+html {
 	height: 100%;
-	margin: 0;
-	padding: 0;
-	overflow-x: hidden;
+	overflow-y: hidden;
+	-webkit-text-size-adjust: 100%;
 }
 
-/* this is needed to correctly handles the details-popup placement and scrolling */
-html{
-	overflow-y: hidden;
-}
-body{
-	font-size: 14px;
+body {
+	margin: 0;
+	height: 100%;
+	overflow-x: hidden;
 	overflow-y: scroll;
 	position: relative;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-	color: var(--toh-text);
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--font);
+	font-size: 14px;
+	line-height: 1.5;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* Layout --------------------------------------------------- */
-
-#toh-page{
-	background-color: var(--toh-bg);
-}
-BODY.toh-loading #toh-page{
-	animation: loading 0.5s infinite ease-in-out;
-}
-@keyframes loading {
-	0%, 100% { 	background-color: rgb(242, 245, 199); 		}
-	50% { 		background-color:rgb(240, 222, 222) 		} 
-}
-
-/* Header --------------------------------------------------  */
-
-#toh-header{
-	background: linear-gradient(135deg, var(--toh-primary) 0%, var(--toh-primary-dark) 100%);
-	border-bottom: none;
-	margin-bottom: 24px;
-	box-shadow: var(--toh-shadow-lg);
-}
-#toh-header-bg{
-	padding: 8px 0;
-	position: relative;
-}
-
-#toh-header,
-#toh-header h1,
-#toh-header-right {
-	min-height: 60px;
-}
-
-#toh-header-logo{
-	float: left;
-}
-#toh-header-logo{
-	padding: 12px 16px 0 24px;
-}
-#toh-header-logo IMG{
-	height:32px;
-	transition: transform var(--toh-transition), filter var(--toh-transition);
-}
-#toh-header-title{
-	float: left;
-	padding-right: 24px;
-}
-#toh-header h1 {
-	line-height: 60px;
+h1, h2, h3, h4, h5 {
 	margin: 0;
-	text-align: left;
-	font-size: 1.75rem;
 	font-weight: 600;
-	letter-spacing: -0.025em;
+	letter-spacing: -0.011em;
+	color: var(--text);
 }
-#toh-header h1,
-#toh-header h1 A{
-	color: #fff;
+
+p {
+	margin: 0;
+}
+
+a {
+	color: var(--primary);
 	text-decoration: none;
-	transition: opacity var(--toh-transition);
 }
-#toh-header h1 A:hover{
-	opacity: 0.9;
-}
-#toh-search-icon I:hover,
-#toh-header A:hover{
-	text-shadow: none;
-	opacity: 0.9;
-}
-#toh-header-logo IMG:hover{
-	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-	transform: scale(1.05);
+a:hover {
+	color: var(--primary-hover);
 }
 
-#toh-dev-badge{
-	position: absolute;
-	bottom: 0;
-	left: 50%;
-	transform: translateX(50%) translateY(50%);
-	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-	box-shadow: var(--toh-shadow);
-	border-radius: 6px;
-	padding: 4px 10px;
-	font-size: 11px;
-	font-weight: 500;
-}
-#toh-dev-badge:hover{
-	cursor: pointer;
-	transform: translateX(50%) translateY(50%) scale(1.05);
+ul {
+	margin: 0;
+	padding-left: 1.25em;
 }
 
-#toh-header-count{
-	color: rgba(255, 255, 255, 0.95);
-	font-size: 0.95rem;
-	font-weight: 500;
-}
-#toh-header-count .toh-count-rows-full B{
-	font-weight: 700;
-	color: #fde047;
-}
-#toh-header-count .toh-count-rows-full I{
-	font-style: normal;
+hr {
+	border: 0;
+	border-top: 1px solid var(--border);
+	margin: 16px 0;
 }
 
-#toh-header-right{
-	padding-right: 50px;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-#toh-header-search{
-	padding-left: 20px;
-}
-#toh-search-icon{
-	display: inline-block;
-	font-size: 18px;
-	color: rgba(255, 255, 255, 0.9);
-	padding-right: 10px;
-	transition: transform var(--toh-transition);
-}
-#toh-search-icon I{
-	opacity: 0.85;
-	transition: opacity var(--toh-transition);
+input,
+select,
+button,
+textarea {
+	font: inherit;
+	color: inherit;
 }
 
-#toh-search-icon I:hover{
-	cursor: pointer;
-	opacity: 1;
-	transform: scale(1.1);
+:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 2px;
+	border-radius: 3px;
 }
 
-#toh-header-search .toh-hidden{
+.toh-hidden {
 	display: none;
 }
-#toh-header-search .toh-search-group {
+
+.badge {
+	display: inline-block;
+	padding: 2px 7px;
+	border-radius: 999px;
+	background: var(--danger);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+
+/* Icons ---------------------------------------------------------------------
+	Lucide, from the sprite inlined at the top of index.html. Sized in em so an
+	icon always tracks the text it sits next to.
+*/
+.toh-icon-sprite {
+	display: none;
+}
+
+.toh-ico {
+	width: 1.05em;
+	height: 1.05em;
+	flex: none;
+	vertical-align: -0.16em;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	overflow: visible;
+}
+
+.toh-ico-spin {
+	animation: toh-spin 0.9s linear infinite;
+}
+@keyframes toh-spin {
+	to { transform: rotate(360deg); }
+}
+
+.toh-ico-heart {
+	color: #f43f5e;
+	fill: #f43f5e;
+	stroke: none;
+}
+
+
+/* #####################################################################################################
+##### App bar ##########################################################################################
+######################################################################################################## */
+
+#toh-appbar {
+	position: sticky;
+	top: 0;
+	z-index: 900;
+	height: var(--appbar-h);
+	background: var(--surface);
+	border-bottom: 1px solid var(--border);
+}
+
+.toh-appbar-inner {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 0 var(--gutter);
+}
+
+#toh-sidebar-toggle {
+	display: none;					/* only useful once the sidebar collapses */
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	margin-left: -6px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: var(--r-sm);
+	background: none;
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: background var(--t), color var(--t);
+}
+#toh-sidebar-toggle:hover {
+	background: var(--hover);
+	color: var(--text);
+}
+#toh-sidebar-toggle .toh-ico {
+	width: 18px;
+	height: 18px;
+}
+#toh-sidebar-toggle .toh-ico-sb-close,
+BODY.toh-sidebar-open #toh-sidebar-toggle .toh-ico-sb-open {
+	display: none;
+}
+BODY.toh-sidebar-open #toh-sidebar-toggle .toh-ico-sb-close {
+	display: block;
+}
+
+#toh-appbar-brand {
+	display: flex;
+	align-items: center;
+}
+/* logo.svg is a two-tone mark drawn for the old blue header - its wordmark is
+   white, so it disappears on a light bar. Flatten it to one colour per theme. */
+#toh-appbar-brand img {
+	height: 26px;
+	width: auto;
+	display: block;
+	filter: brightness(0);
+	opacity: 0.85;
+	transition: opacity var(--t);
+}
+#toh-appbar-brand:hover img {
+	opacity: 1;
+}
+:root[data-theme="dark"] #toh-appbar-brand img {
+	filter: brightness(0) invert(1);
+}
+
+#toh-appbar-title {
+	color: var(--text);
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	white-space: nowrap;
+	padding-left: 12px;
+	border-left: 1px solid var(--border);
+}
+#toh-appbar-title:hover {
+	color: var(--primary);
+}
+
+#toh-dev-badge {
+	display: none;					/* shown by BODY.branch-dev */
+	flex: none;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--dead-bg);
+	border: 1px solid var(--dead);
+	color: var(--dead);
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.toh-appbar-right {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+#toh-theme-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: var(--r-sm);
+	background: none;
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: background var(--t), color var(--t);
+}
+#toh-theme-toggle:hover {
+	background: var(--hover);
+	color: var(--text);
+}
+#toh-theme-toggle .toh-ico {
+	width: 16px;
+	height: 16px;
+}
+/* show the icon for the theme you would switch *to* */
+#toh-theme-toggle .toh-ico-theme-light,
+:root[data-theme="dark"] #toh-theme-toggle .toh-ico-theme-dark {
+	display: none;
+}
+:root[data-theme="dark"] #toh-theme-toggle .toh-ico-theme-light {
+	display: block;
+}
+
+#toh-header-loading {
+	display: none;
+	color: var(--primary);
+	line-height: 1;
+}
+
+.toh-appbar-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	color: var(--text-muted);
+	font-size: 13px;
+	font-weight: 500;
+	transition: color var(--t);
+}
+.toh-appbar-link:hover {
+	color: var(--text);
+}
+.toh-appbar-link .toh-ico {
+	width: 13px;
+	height: 13px;
+	opacity: 0.7;
+}
+
+
+/* #####################################################################################################
+##### Shell : sidebar + content ########################################################################
+######################################################################################################## */
+
+/* Two columns, two rows. The hero takes the content column on the first row,
+   which is what puts the sidebar's top edge level with the table instead of
+   letting the filters run the whole height of the page. */
+#toh-shell {
+	display: grid;
+	grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+	grid-template-rows: auto auto;
+	align-items: start;
+	max-width: var(--shell-max);
+	margin: 0 auto;
+}
+
+#toh-hero {
+	grid-column: 2;
+	grid-row: 1;
+}
+/* the rail runs the height of the grid, its top edge level with the hero */
+#toh-sidebar {
+	grid-column: 1;
+	grid-row: 1 / span 2;
+}
+#toh-content {
+	grid-column: 2;
+	grid-row: 2;
+}
+
+/* The sidebar starts level with the table, not with the hero, and never grows
+   past the viewport - its own list scrolls instead. */
+#toh-sidebar {
+	position: sticky;
+	top: var(--appbar-h);
+	max-height: calc(100vh - var(--appbar-h));
+	border-right: 1px solid var(--border);
+	background: var(--sidebar-bg);
+	overflow: hidden;
+}
+
+#toh-sidebar-inner {
+	max-height: calc(100vh - var(--appbar-h));
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 32px 20px 40px;		/* top aligns the title with the hero H1 */
+}
+
+#toh-sidebar-scrim {
+	display: none;
+}
+
+#toh-content {
+	min-width: 0;
+	padding: 28px var(--gutter) 48px;
+}
+
+
+/* Sidebar : section chrome ------------------------------------------------- */
+
+.toh-side-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 4px;
+}
+
+A.toh-side-title-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	color: var(--text);
+	font-size: 13px;
+	font-weight: 600;
+}
+A.toh-side-title-toggle:hover {
+	color: var(--primary);
+}
+.toh-side-caret {
+	width: 13px;
+	height: 13px;
+	color: var(--text-faint);
+	transition: transform var(--t);
+}
+A.toh-side-title-toggle.is-open .toh-side-caret {
+	transform: rotate(90deg);
+}
+
+/* hidden until sidebar filters are actually in use (toggleFilterClearButVisibility) */
+A.toh-filters-clear {
+	display: none;
+	align-items: center;
+	gap: 3px;
+	margin-left: auto;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--filt-sidebar-bg);
+	color: var(--filt-sidebar);
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: filter var(--t);
+}
+A.toh-filters-clear.toh-but-shown {
+	display: inline-flex;
+}
+A.toh-filters-clear:hover {
+	color: var(--filt-sidebar);
+	filter: brightness(0.96);
+}
+A.toh-filters-clear .toh-ico {
+	width: 11px;
+	height: 11px;
+}
+
+.toh-side-container {
+	padding-top: 18px;
+}
+
+/* Whitespace does the separating, not rules. The only hairline is above the
+   trailing options block, which is a different kind of control. */
+.toh-side-section + .toh-side-section {
+	margin-top: 30px;
+}
+#toh-filters-options {
+	margin-top: 32px;
+	padding-top: 20px;
+	border-top: 1px solid var(--border);
+}
+
+.toh-side-subtitle {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 10px;
+	color: var(--text-faint);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+
+/* Sidebar : filter presets ------------------------------------------------- */
+
+#toh-filters-presets .toh-filters-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+}
+
+/* unwrap the generic filter row markup so the presets can flow as labels */
+#toh-filters-presets .toh-filter-preset,
+#toh-filters-presets .toh-filter-preset .toh-filter-title {
+	display: contents;
+}
+
+/* GitHub-style labels rather than framework pills */
+#toh-filters-presets A.toh-filter-button {
+	display: inline-block;
+	padding: 2px 8px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 18px;
+	white-space: nowrap;
+	transition: all var(--t);
+}
+#toh-filters-presets A.toh-filter-button:hover {
+	border-color: var(--primary);
+	background: var(--primary-soft);
+	color: var(--primary);
+}
+/* the preset explanation only fits as a tooltip in a 272px column */
+#toh-filters-presets .toh-filter-description {
+	display: none;
+}
+
+
+/* Sidebar : feature filters ------------------------------------------------ */
+
+.toh-filters-list-multi {
+	display: flex;
+	flex-direction: column;
+	gap: 26px;
+}
+
+.toh-filtgroup-title {
+	margin-bottom: 8px;
+}
+.toh-filtgroup-title A,
+.toh-viewgroup-title A {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--text-faint);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+.toh-filtgroup-title .toh-ico {
+	width: 12px;
+	height: 12px;
+	opacity: 0.7;
+}
+.toh-filtgroup-title A:hover {
+	cursor: default;
+	color: var(--text-faint);
+}
+.toh-filtgroup-count:not(:empty) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 16px;
+	height: 16px;
+	margin-left: 2px;
+	padding: 0 5px;
+	border-radius: 999px;
+	background: var(--primary);
+	color: #fff;
+	font-size: 10px;
+	letter-spacing: 0;
+}
+
+/* groups past the first few, revealed by "Show more filters" */
+.toh-filtgroup-extra {
+	display: none;
+}
+.toh-filters-list-multi.show-all .toh-filtgroup-extra {
+	display: block;
+}
+
+A.toh-filters-more {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 2px;
+	color: var(--primary);
+	font-size: 13px;
+	font-weight: 500;
+}
+A.toh-filters-more .toh-ico {
+	width: 14px;
+	height: 14px;
+	transition: transform var(--t);
+}
+.toh-filters-list-multi.show-all A.toh-filters-more .toh-ico {
+	transform: rotate(180deg);
+}
+.toh-filters-list-multi .toh-filters-more-hide,
+.toh-filters-list-multi.show-all .toh-filters-more-show {
+	display: none;
+}
+.toh-filters-list-multi.show-all .toh-filters-more-hide {
+	display: inline;
+}
+
+.toh-filters-list UL,
+.toh-cols-list UL {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.toh-filter {
+	padding: 3px 0;
+}
+
+/* the checkbox lives inside .toh-filter-title, so that is where the row layout goes */
+.toh-filter-feature .toh-filter-title {
+	display: flex;
+	align-items: baseline;
+	gap: 9px;
+	min-width: 0;
+}
+.toh-filter-feature INPUT[type=checkbox] {
+	flex: none;
+	width: 14px;
+	height: 14px;
+	margin: 0;
+	accent-color: var(--primary);
+	cursor: pointer;
+	transform: translateY(2px);
+}
+
+.toh-filter-feature .toh-filter-title A {
+	color: var(--text);
+	font-size: 13px;
+}
+.toh-filter-feature .toh-filter-title A:hover {
+	cursor: help;
+	color: var(--primary);
+}
+
+/* the long "field like value" explanation only fits as a tooltip here */
+.toh-filter-feature .toh-filter-description {
+	display: none;
+}
+
+.toh-filtgroup[data-group=admin] A {
+	color: var(--danger);
+}
+
+
+/* Sidebar : "links columns view" options ----------------------------------- */
+
+#toh-filters-options {
+	font-size: 12px;
+	color: var(--text-muted);
+}
+.toh-options-title A {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	color: var(--text-faint);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+.toh-options-title A:hover {
+	cursor: help;
+	color: var(--text-muted);
+}
+.toh-options-title .toh-ico {
+	width: 12px;
+	height: 12px;
+}
+.toh-options-radios {
+	margin-top: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.toh-options-radios LABEL {
+	cursor: pointer;
+}
+.toh-options-radios INPUT[type=radio] {
+	margin-right: 6px;
+	accent-color: var(--primary);
+	cursor: pointer;
+}
+
+
+/* User presets (the small 1/2/3 tabs) -------------------------------------- */
+
+.toh-upresets {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: auto;
+	text-transform: none;
+	letter-spacing: 0;
+}
+.toh-upresets-title A {
+	display: inline-flex;
+	color: var(--text-faint);
+}
+.toh-upresets-title A:hover {
+	cursor: help;
+	color: var(--text-muted);
+}
+.toh-upresets-title .toh-ico {
+	width: 13px;
+	height: 13px;
+}
+
+.toh-upresets-content {
+	display: inline-flex;
+	gap: 3px;
+}
+.toh-upresets-content A {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 4px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text-faint);
+	font-size: 10px;
+	font-weight: 600;
+}
+.toh-upresets-content A:hover {
+	border-color: var(--border-strong);
+	color: var(--text-muted);
+}
+.toh-upresets-content A.toh-used {
+	border-color: var(--primary);
+	background: var(--primary-soft);
+	color: var(--primary);
+}
+.toh-upresets-content A.toh-saving {
+	border-color: var(--warn);
+	background: #fffbeb;
+	color: var(--warn);
+}
+
+
+/* #####################################################################################################
+##### Page head ########################################################################################
+######################################################################################################## */
+
+/* Most people arrive with one question - "does my router run OpenWrt?" - so
+   the search sits at the top of the content column, directly above the table
+   it searches. */
+#toh-hero {
+	padding: 28px var(--gutter) 4px;
+}
+
+#toh-hero H1 {
+	font-size: 32px;
+	line-height: 1.15;
+	letter-spacing: -0.025em;
+}
+
+#toh-lede {
+	margin-top: 8px;
+	max-width: 60ch;
+	color: var(--text-muted);
+	font-size: 15px;
+}
+
+/* Hero search -------------------------------------------------------------- */
+
+.toh-herosearch {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	max-width: 680px;
+	margin-top: 24px;
+	padding: 0 16px;
+	height: 52px;
+	border: 1px solid var(--border-strong);
+	border-radius: var(--r-lg);
+	background: var(--surface);
+	transition: border-color var(--t), box-shadow var(--t);
+}
+.toh-herosearch:focus-within {
+	border-color: var(--primary);
+	box-shadow: 0 0 0 4px var(--primary-ring);
+}
+
+#toh-search-icon {
+	display: flex;
+	color: var(--text-faint);
+}
+#toh-search-icon .toh-ico {
+	width: 19px;
+	height: 19px;
+}
+
+.toh-search-group {
 	position: relative;
-	display: inline-block !important;
-	margin-bottom: 0;
-	margin-right: 4px;
+	display: flex;
+	align-items: center;
+	min-width: 0;
 }
-#toh-header-search .toh-search-input {
-	width: 165px;
-	height: 34px;
-	font-size: 14px;
-	border-radius: 20px;
-	padding: 6px 30px 6px 12px;
-	border: 2px solid transparent;
-	background: rgba(255, 255, 255, 0.95);
-	box-shadow: var(--toh-shadow-sm);
-	transition: all var(--toh-transition);
+.toh-search-group:first-of-type {
+	flex: 3 1 0;
 }
-#toh-header-search .toh-search-input:focus {
-	border-color: var(--toh-primary-light);
-	background: #fff;
-	box-shadow: 0 0 0 3px rgba(0, 153, 217, 0.2);
+.toh-search-group:last-of-type {
+	flex: 1 1 0;
+	padding-left: 14px;
+	border-left: 1px solid var(--border);
+}
+
+.toh-search-input {
+	width: 100%;
+	min-width: 0;
+	height: 32px;
+	padding: 0 24px 0 0;
+	border: 0;
+	background: none;
+	font-size: 15px;
+}
+.toh-search-input:focus {
 	outline: none;
 }
-/* .input-group .toh-search-clear {
-	margin: 0;
-} */
+.toh-search-input::placeholder {
+	color: var(--text-faint);
+}
 
 .toh-search-clear {
 	position: absolute;
-	right: 10px;
+	right: 2px;
 	top: 50%;
 	transform: translateY(-50%);
-	pointer-events: auto;
-	cursor: pointer;
-	color: var(--toh-text-secondary);
-	z-index: 9;
 	display: none;
-	opacity: 0.6;
-	transition: all var(--toh-transition);
-	padding: 4px;
+	color: var(--text-faint);
+	cursor: pointer;
+	transition: color var(--t);
 }
 .toh-search-clear:hover {
-	opacity: 1;
-	color: #ef4444;
-	transform: translateY(-50%) scale(1.1);
+	color: var(--danger);
 }
-
+.toh-search-clear .toh-ico {
+	width: 16px;
+	height: 16px;
+	display: block;
+}
 .toh-search-clear::-ms-clear {
 	display: none;
 }
 
+/* Stats : big number, small label, no card ---------------------------------- */
 
-#toh-header-loading{
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	right: 12px;
-	font-size: 1.5rem;
-	color: #fde047;
-	animation: pulse 1.5s ease-in-out infinite;
-}
-@keyframes pulse {
-	0%, 100% { opacity: 1; }
-	50% { opacity: 0.5; }
+#toh-stats {
+	margin-top: 28px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 48px;
 }
 
-@media screen and (max-width: 1065px) {
-	#toh-header-title{
-		float: none;
-	}
-	#toh-header-bg,
-	#toh-header-right,
-	#toh-header h1{
-		min-height: 40px;
-	}
-	#toh-header h1 {
-		line-height: 40px;
-	}
-	#toh-dev-badge{
-		font-size: 11px;
-		padding: 2px 5px;
-	}
-	#toh-header-logo{
-		padding-top: 5px;
-	}
-	#toh-header-right{
-		padding-left: 130px;
-		padding-right: 20px;
-	}
-
-	#toh-header-search .form-control{
-		height: 25px;
-	}
-	#toh-search-icon{
-		display: none;	/* when hidding icon */
-	}
-	#toh-search{
-		display: inline-block !important; /* when hidding icon */
-	}
-	#toh-header-loading{
-		left: 20px;
-		top: 70%;
-		right: auto;
-		/* right: auto;
-		*/
-		/* font-size: 18px; */
-	}
-
-}
-@media screen and (max-width: 660px) {
-	#toh-header-bg{
-		padding-bottom: 8px;
-	}
-	#toh-header-bg,
-	#toh-header-right,
-	#toh-header h1{
-		min-height: 30px;
-	}
-	#toh-header h1 {
-		line-height: 30px;
-	}
-	#toh-header-logo{
-		width: 29px;
-		overflow: hidden;
-	}
-	#toh-header-logo {
-		padding: 5px 20px 0 7px ;
-	}
-	#toh-header-logo IMG {
-		height: 25px;
-	}
-	#toh-header h1 {
-		padding-left: 40px;
-		font-size: 1.4em;
-	}
-	#toh-header-right{
-		padding-left: 0;
-		padding-right: 10px;
-	}
-
-	#toh-header-count{
-		font-size: 0.7em;
-	}
-	#toh-header-search{
-		padding-left: 7px;
-		margin-left: 33px; /* when hidding icon */
-	}
-	#toh-header-search .form-control{
-		width: 100px;
-		font-size: 12px;
-	}
-	#toh-search-icon{
-		font-size: 20px;
-		padding-top: 1px;
-		padding-right: 10px;
-	}
-	#toh-header-loading{
-		left: 10px;
-		top: 68%;
-		font-size: 16px;
-	}
-
+.toh-stat-value {
+	display: block;
+	font-size: 30px;
+	font-weight: 650;
+	line-height: 1.1;
+	letter-spacing: -0.03em;
+	font-variant-numeric: tabular-nums;
 }
 
-
-/* Footer --------------------------------------------------  */
-#toh-footer-bg{
-	padding: 16px 0;
-}
-#toh-footer{
-	border-top: none;
-	box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
-	font-size: 0.85rem;
-	text-align: center;
-	color: rgba(255, 255, 255, 0.85);
-}
-#toh-footer A{
-	color: #fff;
-	text-decoration: none;
-	font-weight: 500;
-	transition: opacity var(--toh-transition);
-}
-#toh-footer A:hover{
-	opacity: 0.8;
-	text-decoration: underline;
-}
-body,
-#toh-footer {
-	background: linear-gradient(135deg, var(--toh-primary) 0%, var(--toh-primary-dark) 100%);
-}
-
-
-/* Page content --------------------------------------------  */
-
-.toh-box{
-	border: 1px solid var(--toh-border);
-	border-radius: var(--toh-radius-lg);
-	background: var(--toh-surface);
-	box-shadow: var(--toh-shadow);
-}
-
-#toh-main{
-	padding-top: 0;
-	margin-bottom: 24px;
-}
-
-#toh-info{
-	margin-bottom: 50px;
-}
-#toh-info .toh-box{
-	margin-bottom: 15px;
-	padding: 15px 20px;
+.toh-stat-label {
+	display: block;
+	margin-top: 2px;
+	color: var(--text-muted);
 	font-size: 13px;
-	border-radius: 6px;
 }
-
-
-/* Tips ------------------------------------------------------*/
-
-#toh-tips{
-	margin-top: 10px;
-	border-left: 4px solid #00a3e1;
-}
-#toh-tips H4{
-	color: #0081b3;
-	margin-top: 0;
-	margin-bottom: 10px;
-	font-weight: 600;
-	font-size: 1rem;
-}
-#toh-tips H4 I{
-	margin-right: 6px;
-}
-#toh-tips LI{
-	color: #555;
-	line-height: 1.5;
-	margin-bottom: 4px;
-}
-#toh-tips UL,
-#toh-changelog-latest UL,
-#toh-changelog-previous{
-	column-count: 3;
-	column-gap: 2em; 
-	padding-left: 20px;
-}
-@media screen and (max-width: 1600px) {
-	#toh-tips UL,
-	#toh-changelog-latest UL {
-		column-count: 2;
-	}
-}
-@media screen and (max-width: 900px) {
-	#toh-tips UL,
-	#toh-changelog-latest UL {
-		column-count: 1;
-	}
-}
-
-
-/* ChangeLog -------------------------------------------------*/
-
-#toh-changelog{
-	margin-top: 20px;
-	background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%);
-	border-color: #fde68a;
-}
-#toh-changelog HR{
-	border-color: #fde68a;
-}
-#toh-changelog H4 A{
-	font-size: 50%;
-	vertical-align: middle;
-	margin-left: 4px;
-	color: var(--toh-primary);
-	transition: color var(--toh-transition);
-}
-#toh-changelog H4 A:hover{
-	color: var(--toh-primary-dark);
-}
-
-#toh-changelog H5 {
-	margin-top: 0;
-	margin-bottom: 2px;
-	padding-left: 25px;
-	color: rgb(241, 121, 0);
-}
-#toh-changelog H5 .badge{
-	background-color: #E00;
-	margin-left: 8px;
-}
-#toh-changelog UL{
-	padding-left: 50px;
-}
-
-#toh-changelog-latest{
-	margin-bottom: 20px;
-}
-.toh-changelog-release{
-	break-inside: avoid-column;
-	margin-bottom: 15px;
-}
-#toh-changelog-desc{
-	float: right;
-	padding-top: 10px;
-	font-size: 11px;
-	color: #f00;
-}
-
-
-
 
 
 /* #####################################################################################################
-##### MAIN CONTENT #####################################################################################
+##### Cards ############################################################################################
 ######################################################################################################## */
 
+.toh-card {
+	border: 1px solid var(--border);
+	border-radius: var(--r-lg);
+	background: var(--surface);
+	box-shadow: var(--shadow-xs);
+}
 
-/* Global --------------------------------------------------- */
+#toh-main {
+	overflow: visible;				/* the toolbar menus overflow the card */
+}
 
-.toh-hidden{
+
+/* #####################################################################################################
+##### Toolbar ##########################################################################################
+######################################################################################################## */
+
+#toh-toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+	padding: 12px 14px;
+	border-bottom: 1px solid var(--border);
+}
+
+/* Count -------------------------------------------------------------------- */
+
+#toh-toolbar-count {
+	color: var(--text-muted);
+	font-size: 13px;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+#toh-toolbar-count B,
+#toh-toolbar-count I {
+	color: var(--text);
+	font-style: normal;
+	font-weight: 650;
+}
+.toh-toolbar-count-label {
+	margin-left: 4px;
+}
+
+/* Actions ------------------------------------------------------------------ */
+
+#toh-toolbar-actions {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+
+/* #####################################################################################################
+##### Buttons ##########################################################################################
+######################################################################################################## */
+
+A.toh-but,
+BUTTON.toh-but {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 32px;
+	padding: 0 11px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text-muted);
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background var(--t), border-color var(--t), color var(--t);
+}
+A.toh-but:hover,
+BUTTON.toh-but:hover {
+	background: var(--hover);
+	border-color: var(--border-strong);
+	color: var(--text);
+}
+A.toh-but .toh-ico {
+	width: 14px;
+	height: 14px;
+	opacity: 0.75;
+}
+
+/* The clear-* buttons stay hidden until the matching kind of filter is in use
+   (see toggleFilterClearButVisibility). They are the same shape as Columns and
+   Export - a toolbar is one control family - and carry the colour of the column
+   headers they clear as a dot rather than a fill. */
+#toh-toolbar-actions A.toh-but-clearheadersorts,
+#toh-toolbar-actions A.toh-but-clearfilters,
+#toh-toolbar-actions A.toh-but-clearheaderfilters,
+#toh-toolbar-actions A.toh-but-clearallfilters {
+	display: none;
+}
+#toh-toolbar-actions A.toh-but.toh-but-shown {
+	display: inline-flex;
+}
+#toh-toolbar-actions A.toh-but-clearfilters::before,
+#toh-toolbar-actions A.toh-but-clearheaderfilters::before,
+#toh-toolbar-actions A.toh-but-clearallfilters::before {
+	content: '';
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: currentColor;
+}
+#toh-toolbar-actions A.toh-but-clearfilters {
+	color: var(--filt-sidebar);
+}
+#toh-toolbar-actions A.toh-but-clearheaderfilters {
+	color: var(--filt-header);
+}
+#toh-toolbar-actions A.toh-but-clearallfilters {
+	color: var(--filt-all);
+}
+#toh-toolbar-actions A.toh-but-clearfilters:hover,
+#toh-toolbar-actions A.toh-but-clearheaderfilters:hover,
+#toh-toolbar-actions A.toh-but-clearallfilters:hover {
+	border-color: currentColor;
+	color: currentColor;
+}
+/* the dot replaces the x on the filter clears */
+#toh-toolbar-actions A.toh-but-clearfilters .toh-ico,
+#toh-toolbar-actions A.toh-but-clearheaderfilters .toh-ico,
+#toh-toolbar-actions A.toh-but-clearallfilters .toh-ico {
 	display: none;
 }
 
 
-/* Top sections ------------------------------------------------*/
+/* #####################################################################################################
+##### Toolbar menus (Columns / Export) #################################################################
+######################################################################################################## */
 
-#toh-top{
-}
-
-.toh-top-block{
-	/* height: 27px; */
-	margin-top: 25px;
-}
-.toh-top-block:first-child{
-	margin-top: 0;
-}
-
-.toh-top-title-left,
-.toh-top-title-presets A,
-#toh-top-cols .toh-upresets-title{
-	line-height: 20px;
-}
-#toh-top-filters .toh-top-title-left,
-#toh-top-filters .toh-top-title-presets A,
-#toh-top-filters .toh-upresets-title{
-	line-height: 22px;
-}
-
-.toh-top-title-left{
-	border-bottom: 1px solid  rgba(0, 0, 0, 0.02);
-}
-
-.toh-top-title,
-.toh-top-title-presets A{
-	border-bottom: 1px solid  rgba(0, 0, 0, 0.18);
-}
-.toh-top-title-left,
-.toh-top-title-presets A{
-	margin-bottom: -1px;
+.toh-menu {
 	position: relative;
-	z-index: 1;
-	vertical-align: bottom;
 }
-#toh-top-cols .toh-top-title-presets A{
-	margin-top: 1px;
+
+A.toh-menu-but.is-open {
+	background: var(--hover);
+	border-color: var(--border-strong);
+	color: var(--text);
 }
-#toh-top-cols .toh-top-title-presets A.toh-selected{
-	line-height: 21px;
-	margin-top: 0;
+.toh-menu-caret {
+	width: 13px;
+	height: 13px;
+	margin-left: -2px;
+	opacity: 0.55;
+	transition: transform var(--t);
+}
+A.toh-menu-but.is-open .toh-menu-caret {
+	transform: rotate(180deg);
+}
+
+.toh-menu-panel {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	z-index: 800;
+	min-width: 220px;
+	max-width: min(920px, calc(100vw - 2 * var(--gutter)));
+	max-height: min(70vh, 640px);
+	overflow-y: auto;
+	padding: 14px;
+	border: 1px solid var(--border);
+	border-radius: var(--r);
+	background: var(--surface);
+	box-shadow: var(--shadow-lg);
+}
+
+#toh-cols-container {
+	width: 860px;
+}
+
+.toh-menu-panel-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding-bottom: 12px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--border);
 }
 
 
-.toh-top-title{
-	position: relative;
-	border-top: 1px solid rgba(0, 0, 0, 0.06);
-	background-color: #f5f5f5;
-	background: linear-gradient(to top,  rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.01) 100%);	
-	font-size: 13px;
-	z-index: 0;
-}
-#toh-top-filters .toh-top-title{
-	border-top: 0;
-}
+/* Column view presets ------------------------------------------------------ */
 
-
-.toh-top-title-left{
+.toh-top-title-presets {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+#toh-cols-presets A {
 	display: inline-block;
-}
-.toh-top-title-left,
-.toh-top-title-left A.toh-top-title-toggle{
-	color: #444;
-}
-.toh-top-title-left A.toh-top-title-toggle{
-	display: inline-block;
-	padding-left: 5px;
-	margin-right: 10px;
-	text-decoration: none;
-}
-
-.toh-top-title-left A.toh-top-title-toggle:hover{
-	/* color: rgb(1, 123, 168); */
-	color: #222;
-}
-.toh-top-title-left A I{
-	/* margin-right: 5px; */
-}
-
-.toh-top-container{
-	padding: 8px 10px 5px 25px;
+	padding: 3px 10px;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--surface);
+	color: var(--text-muted);
 	font-size: 12px;
+	font-weight: 500;
+	transition: all var(--t);
 }
-
-/* Top Menus ------------------------------------------------ */
-
-/* Views Presets ++++++++++++++  */
-
-.toh-top-title-presets A{
-	overflow: visible;
-	display: inline-block;
-	padding: 0 9px;
-	border-right: 1px solid rgba(0, 0, 0, 0.15);
-	background: linear-gradient(to bottom,  rgba(0,0,0,0.03) 0%,rgba(0,0,0,0.0) 100%), #fff;
-	/* background-color: #fff; */
-	color: #777;
-	text-decoration: none;
+#toh-cols-presets A:hover {
+	border-color: var(--border-strong);
+	background: var(--hover);
+	color: var(--text);
 }
-.toh-top-title-presets A:hover{
-	background: linear-gradient(to top, 
-		rgba(255,255,255, 0.95),
-		rgba(255,255,255, 0.85)
-	), rgb(0, 152, 207);
-	color: #000;
-}
-
-#toh-cols-title .toh-top-title-left{
-	border-right: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-
-/* user presets ++++++++++++++  */
-
-.toh-upresets-content A.toh-saving{
-	background-color: #fae9cb;
-	opacity: 1.0;
-	color: #000;
-}
-.toh-upresets{
-	float:right;
-	margin-left: 15px;
-}
-.toh-upresets-title{
-	display: inline-block;
-	padding-right: 8px;
-	border-right: 1px solid rgba(0, 0, 0, 0.15);
-	font-size: 12px;
-}
-
-.toh-upresets-title A{
-	color: #aaa;
-}
-.toh-upresets-title A:hover{
-	color: #0B0;
-	cursor: help;
-}
-
-.toh-top-title-presets.toh-upresets-content A{
-	color: #ddd;
-}
-.toh-top-title-presets.toh-upresets-content A:hover{
-	color: #bbb;
-}
-.toh-upresets-content A:last-child{
-	border-right: none;
-}
-.toh-upresets-content A.toh-used{
-	/* background-color: #fff; */
-	color: #777;
-}
-.toh-upresets-content A.toh-used:hover{
-	color: #000;
-}
-
-
-/* selected presets  ++++++++++++++ -*/
-
-.toh-top-title-presets A.toh-selected{
-	border-right: 1px solid rgba(0, 0, 0, 0.12);
-	border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-
-	background: linear-gradient(to bottom, 
-		rgba(255,255,255,0.6) 0%,
-		rgba(255,255,255,0.1) 100%),
-		rgb(0, 152, 207);
-	color: rgb(253, 253, 162);
-}
-.toh-top-title-presets A.toh-selected:hover{
+#toh-cols-presets A.toh-selected {
+	border-color: var(--primary);
+	background: var(--primary);
 	color: #fff;
 }
 
 
-
-/* User Preset Popup -----------------------------------------*/
-
-#toh-upreset-popup-save{
-	position: absolute;
-	background-color: #f9f9ff;
-	border: 1px solid rgb(199, 198, 198);
-	padding: 15px 10px;
-	border-radius: 5px;
-	font-size: 12px;
-	z-index: 1000;
-	box-shadow: 3px 3px 10px 2px rgba(0,0,0,.15);
-}
-#toh-upreset-popup-save INPUT{
-	background-color: rgb(230, 230, 252);
-}
-#toh-upreset-popup-save .toh-desc-mini{
-	font-size: 11px;
-	color: #aaa;
-	margin-top: 3px;
-	margin-bottom: 7px;
-}
-
-#toh-upreset-popup-save BUTTON{
-	padding: 4px 7px;
-	text-decoration: none;
-	border: 1px solid rgba(0,0,0,0.23) ;
-	border-radius: 6px;
-	font-size: 11px;
-	line-height: 13px;
-
-	background: linear-gradient(to top, 
-		rgba(0,0,0, 0.15),
-		rgba(0,0,0, 0.01)
-	), #fff;
-	color: #555;
-}
-#toh-upreset-popup-save BUTTON:hover{
-	background: linear-gradient(to top, 
-		rgba(0,0,0, 0.2),
-		rgba(0,0,0, 0.06)
-	), #fff;
-	color: #222;
-}
-
-
-
-/* Top Filters ---------------------------------------------- */
-
-#toh-filters-options{
-	float: right;
-	margin-top: 2px;
-	margin-left: 10px;
-	font-size: 11px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-	background: #eafafa;
-	padding: 0;
-	color: #777;
-}
-.toh-options-title{
-	background: #fff;
-	background: linear-gradient(to top,  rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.01) 100%);	
-	padding: 3px 3px 2px 3px;
-	border-bottom: 1px solid #ccc;
-}
-.toh-options-title A{
-	color: #777;
-	text-decoration: none;
-}
-.toh-options-title A:hover{
-	color: #444;
-	cursor: help;
-}
-
-.toh-options-radios{
-	padding: 4px 2px 5px 10px;
-	line-height: 110%;
-}
-.toh-options-radios LABEL{
-	font-weight: normal;
-}
-
-#toh-filters-title A.toh-filters-clear{
-	display: inline-block;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	border-color:  rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.35);
-	padding: 1px 7px;
-	margin-left: 10px;
-	background-color: rgba(255,255,255, 0.02);
-	font-size: 11px;
-	line-height: 100%;
-	color: #666;
-	text-decoration: none;
-	border-radius: 8px;
-	vertical-align: text-bottom;
-}
-#toh-filters-title A.toh-filters-clear:hover{
-	cursor: pointer;
-	background-color: rgba(255,255,255, 0.2);
-	border-color:  rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.2);
-	color: #222;
-	box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.1);
-}
-
-#toh-filters-presets A{
-	display: block;
-	padding: 2px 5px;
-	border: 1px solid #aaa;
-	border-radius: 5px;
-	background-color: #ddd;	
-	text-decoration: none;
-	color: #464;
-	font-weight: bold;
-	box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.1);
-}
-
-#toh-filters-presets{
-	margin-bottom: 10px;
-}
-.toh-filters-subtitle{
-	font-size: 12px;
-	font-weight: bold;	
-	color: #888;
-	margin-bottom: 5px;
-}
-.toh-filters-list{
-	/* margin-bottom: 10px; */
-}
-.toh-filters-list UL{
-	padding-left: 15px;
-}
-.toh-filters-list-multi {
-	column-count: 5;
-	column-gap: 2em;
-}
-@media screen and (max-width: 1870px) {
-	.toh-filters-list-multi {
-		column-count: 4;
-	}
-}
-@media screen and (max-width: 1503px) {
-	.toh-filters-list-multi {
-		column-count: 3;
-	}
-}
-@media screen and (max-width: 1150px) {
-	.toh-filters-list-multi {
-		column-count: 2;
-	}
-}
-@media screen and (max-width: 780px) {
-	.toh-filters-list-multi {
-		column-count: 1;
-	}
-}
-
-.toh-filter{
-	line-height: 100%;
-	padding-bottom: 2px;
-}
-.toh-filter-preset{
-	margin-bottom: 5px;
-}
-.toh-filter-feature INPUT{
-	margin-right: 5px;
-}
-.toh-filter-feature INPUT:hover{
-	cursor: pointer;
-}
-.toh-filter-title{
-	width: 180px;
-	display: inline-block;
-	margin-right: 6px;
-}
-
-.toh-filter-description{
-	color: #999;
-	font-size: 12px;
-}
-.toh-filtgroup-title A I{
-	opacity: 0.4;
-}
-.toh-filtgroup-title A:hover{
-	cursor: default;
-}
-.toh-filtgroup[data-group=admin] UL A{
-	color: red;
-}
-
-#toh-filters-features .toh-filter-title{
-	width: 120px
-}
-#toh-filters-features .toh-filter-title A{
-	display: inline-block;
-}
-#toh-filters-features .toh-filter-title A:hover{
-	cursor: help;
-}
-
-
-/* Top Views ------------------------------------------------ */
-
-#toh-cols-container{
-	padding-bottom: 10px;
-	border-bottom: 1px solid #ddd;
-}
-
-.toh-cols-list UL{
-	padding-left: 15px;
-}
-.toh-col{
-	line-height: 100%;
-	padding-bottom: 1px;
-}
-.toh-col INPUT:hover{
-	cursor: pointer;
-}
-.toh-col A:hover{
-	cursor: help;
-}
+/* Column checkboxes -------------------------------------------------------- */
 
 .toh-cols-list-multi {
-column-count: 7;
-column-gap: 2em;
+	column-count: 5;
+	column-gap: 24px;
 }
-@media screen and (max-width: 1200px) {
-	.toh-cols-list-multi {
-		column-count: 6;
-	}
-}
-@media screen and (max-width: 1000px) {
-	.toh-cols-list-multi {
-		column-count: 5;
-	}
-}
-@media screen and (max-width: 800px) {
-	.toh-cols-list-multi {
-		column-count: 4;
-	}
-}
-@media screen and (max-width: 680px) {
-	.toh-cols-list-multi {
-		column-count: 3;
-	}
-}
-@media screen and (max-width: 540px) {
-	.toh-cols-list-multi {
-		column-count: 2;
-	}
-}
-.toh-group{
+.toh-group {
 	break-inside: avoid-column;
+	margin-bottom: 16px;
+}
+.toh-viewgroup-title {
+	margin-bottom: 5px;
+}
+.toh-viewgroup-title A:hover {
+	color: var(--text-muted);
+}
+.toh-viewgroup-title .toh-ico {
+	width: 13px;
+	height: 13px;
+	opacity: 0.8;
+}
+
+.toh-col {
+	display: flex;
+	align-items: baseline;
+	gap: 7px;
+	padding: 1px 0;
+}
+.toh-col INPUT[type=checkbox] {
+	flex: none;
+	width: 14px;
+	height: 14px;
+	margin: 0;
+	accent-color: var(--primary);
+	cursor: pointer;
+	transform: translateY(2px);
+}
+.toh-col A {
+	color: var(--text);
+	font-size: 13px;
+}
+.toh-col A:hover {
+	cursor: help;
+	color: var(--primary);
 }
 
 
+/* Export panel ------------------------------------------------------------- */
 
-.toh-cols-list A,
-.toh-filters-list A{
-	color: #000;
-	text-decoration: none;
+#toh-bot-buttons {
+	min-width: 210px;
+	font-size: 13px;
+	color: var(--text-muted);
 }
-.toh-viewgroup-title A,
-.toh-filtgroup-title A{
+#toh-bot-but-title {
+	margin-bottom: 10px;
+	color: var(--text);
 	font-size: 12px;
-	font-weight: bold;	
-	color: #888;
-	text-decoration: none;
-}
-
-
-
-/* Top Buttons ---------------------------------------------- */
-
-#toh-top-buttons{
-	margin-top: 16px;
-	min-height: 40px;
-	overflow: hidden;
-}
-.toh-buttons-left{
-	float: left;
-	margin-bottom: 12px;
-}
-.toh-buttons-right{
-	float: right;
-	margin-bottom: 12px;
-	padding-right: 12px;
-	text-align: right;
-}
-
-A.toh-but{
-	display: inline-block;
-	margin-left: 10px;
-	padding: 6px 12px;
-	text-decoration: none;
-	border: 1px solid var(--toh-border);
-	border-radius: var(--toh-radius);
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.4;
-	background: var(--toh-surface);
-	color: var(--toh-text-secondary);
-	transition: all var(--toh-transition);
-	box-shadow: var(--toh-shadow-sm);
-}
-
-A.toh-but-clearallfilters{
-	color: var(--toh-text);
-	border-color: var(--toh-primary);
 	font-weight: 600;
-	letter-spacing: 0.3px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 }
-
-A.toh-but:hover,
-#toh-filters-presets A:hover{
-	background: linear-gradient(135deg, var(--toh-primary) 0%, var(--toh-primary-dark) 100%);
-	color: #fff;
-	border-color: var(--toh-primary);
-	transform: translateY(-1px);
-	box-shadow: var(--toh-shadow);
+#toh-bot-buttons SELECT {
+	width: 100%;
+	height: 32px;
+	padding: 0 8px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	font-size: 13px;
+	cursor: pointer;
+	transition: border-color var(--t), box-shadow var(--t);
 }
-A.toh-but:hover{
-	border-color: var(--toh-primary);
-}
-
-
-/* Bot section ------------------------------------------------*/
-#toh-bot{
-	margin-top: -1px;
-	position: relative;	
-	border-top: 1px solid var(--toh-border);
-	background: linear-gradient(to bottom, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0) 100%);
-	background-color: var(--toh-surface);
-	border-radius: 0 0 var(--toh-radius-lg) var(--toh-radius-lg);
-}
-
-
-/* Bot Buttons ---------------------------------------------- */
-#toh-bot-buttons{
-	padding: 20px 16px;
-	padding-bottom: 16px;
-	text-align: center;
-	font-size: 14px;
-	line-height: 2;
-	color: var(--toh-text-secondary);
-}
-#toh-bot-but-title{
-	color: var(--toh-text);
-	font-weight: 500;
-}
-#toh-bot-buttons Select{
-	margin-left: 6px;
-	margin-right: 8px;
-	color: var(--toh-text);
-	margin-bottom: 5px;
-	border: 1px solid var(--toh-border);
-	border-radius: var(--toh-radius);
-	padding: 4px 8px;
-	background: var(--toh-surface);
-	transition: border-color var(--toh-transition);
-}
-#toh-bot-buttons Select:focus{
-	border-color: var(--toh-primary);
+#toh-bot-buttons SELECT:focus {
+	border-color: var(--primary);
+	box-shadow: 0 0 0 3px var(--primary-ring);
 	outline: none;
-	box-shadow: 0 0 0 3px rgba(0, 153, 217, 0.15);
 }
-#toh-bot-buttons .toh-count-cols-full{
-	color: var(--toh-text);
-	font-weight: 500;
+.toh-export-note {
+	margin-top: 6px;
+	font-size: 12px;
+	color: var(--text-faint);
 }
-#toh-bot-buttons .toh-count-cols-full B{
-}
-#toh-bot-buttons .toh-count-cols-full I{
+#toh-bot-buttons .toh-count-cols-full B,
+#toh-bot-buttons .toh-count-cols-full I {
+	color: var(--text-muted);
 	font-style: normal;
+	font-weight: 600;
 }
-#toh-bot-but-group{
+#toh-bot-but-group {
+	display: flex;
+	gap: 6px;
+	margin-top: 12px;
 }
-#toh-bot-buttons .toh-but{
-	padding: 8px 16px;
-	margin-bottom: 5px;
+#toh-bot-but-group .toh-but {
+	flex: 1;
+	justify-content: center;
 }
 
 
+/* User preset save popup --------------------------------------------------- */
 
-
-
-
+#toh-upreset-popup-save {
+	position: absolute;
+	z-index: 1000;
+	padding: 14px;
+	border: 1px solid var(--border);
+	border-radius: var(--r);
+	background: var(--surface);
+	box-shadow: var(--shadow-lg);
+	font-size: 12px;
+}
+#toh-upreset-popup-save INPUT {
+	width: 100%;
+	height: 30px;
+	padding: 0 8px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface-sunken);
+}
+#toh-upreset-popup-save INPUT:focus {
+	border-color: var(--primary);
+	box-shadow: 0 0 0 3px var(--primary-ring);
+	outline: none;
+}
+#toh-upreset-popup-save .toh-desc-mini {
+	margin: 5px 0 9px;
+	color: var(--text-faint);
+	font-size: 11px;
+}
+#toh-upreset-popup-save BUTTON {
+	width: 100%;
+	height: 30px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all var(--t);
+}
+#toh-upreset-popup-save BUTTON:hover {
+	background: var(--hover);
+	border-color: var(--border-strong);
+	color: var(--text);
+}
 
 
 /* #####################################################################################################
-##### Tabulator TABLE ##################################################################################
+##### Tabulator table ##################################################################################
 ######################################################################################################## */
 
-/* Cells Formatters ----------------------------------------- */
+#toh-table-container {
+	/* replaced by the measured height in tohSetTableHeight() once built */
+	height: 640px;
+	border-radius: 0 0 var(--r-lg) var(--r-lg);
+	overflow: hidden;
+}
 
-#toh-table .tabulator-cell .fa-question.dash{
+#toh-table.tabulator {
+	border: 0;
+	background: transparent;
+	font-size: 13px;
+	overflow-anchor: none;
+}
+
+/* overflow-y is set by tohSetTableHeight(): the rows only scroll when a full
+   page would not have fitted in the viewport */
+#toh-table.tabulator .tabulator-tableholder {
+	background: var(--surface);
+	overflow-x: scroll;
+}
+#toh-table.tabulator .tabulator-tableholder:focus {
+	outline: none;
+}
+
+
+/* Column headers ----------------------------------------------------------- */
+
+#toh-table .tabulator-header {
+	border: 0;
+	border-bottom: 1px solid var(--border);
+	background: var(--surface-sunken);
+	color: var(--text-muted);
+}
+
+#toh-table .tabulator-header .tabulator-col {
+	border-right: 1px solid var(--border-soft);
+	background: var(--surface-sunken);
+	transition: background var(--t);
+}
+#toh-table .tabulator-header .tabulator-col:hover {
+	background: var(--hover);
+}
+
+#toh-table .tabulator-header .tabulator-col .tabulator-col-content {
+	padding: 8px 8px 6px;
+}
+/* no uppercase here: the columns are narrow and the titles are already
+   abbreviated ("C.Release", "S.Upgrade"), so the extra width just truncates */
+#toh-table .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+	text-overflow: clip;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text-muted);
+}
+
+#toh-table .tabulator-header .tabulator-col-sorter {
+	display: block;
+	position: absolute;
+	top: 26px;
+	right: 0;
+	z-index: 10;
+}
+#toh-table .tabulator-col[aria-sort=ascending] .tabulator-col-title,
+#toh-table .tabulator-col[aria-sort=descending] .tabulator-col-title {
+	color: var(--primary);
+}
+
+/* header filter inputs ----- */
+#toh-table .tabulator-header-filter {
+	padding-right: 14px;
+	margin-top: 2px;
+}
+#toh-table .tabulator-header-filter INPUT {
+	height: 24px;
+	padding: 2px 7px !important;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text);
+	font-size: 12px;
+	line-height: 1.4;
+	transition: border-color var(--t), box-shadow var(--t);
+}
+#toh-table .tabulator-header-filter INPUT::placeholder {
+	color: var(--text-faint);
+}
+#toh-table .tabulator-header-filter INPUT:focus {
+	position: relative;
+	left: 0;
+	z-index: 9999;
+	border-color: var(--primary);
+	background: var(--surface);
+	box-shadow: 0 0 0 3px var(--primary-ring);
+	outline: none;
+}
+
+
+/* Rows --------------------------------------------------------------------- */
+
+/* No zebra and no vertical rules: across ~40 columns they turn into noise.
+   One soft horizontal divider per row, and a clear hover, is enough. */
+#toh-table .tabulator-row {
+	min-height: 0;
+	border-bottom: 1px solid var(--border-soft);
+	background: var(--surface);
+	transition: background var(--t);
+}
+#toh-table .tabulator-row.tabulator-row-even,
+#toh-table .tabulator-row.tabulator-row-odd {
+	background: var(--surface);
+}
+
+/* inline-flex, not flex: Tabulator lays cells out inline, and a block-level
+   cell stacks the whole row vertically */
+/* inline-flex, not flex: Tabulator lays cells out inline, and a block-level
+   cell stacks the whole row vertically.
+   The padding stays modest because the column widths are fixed - every extra
+   pixel here is taken out of the visible text, not added to the column. */
+#toh-table .tabulator-row .tabulator-cell {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 8px;
+	border-right: 0;
+	color: var(--text);
+}
+
+#toh-table .tabulator-row:hover,
+#toh-table .tabulator-row.tabulator-row-odd:hover,
+#toh-table .tabulator-row.tabulator-row-even:hover {
+	background: var(--hover);
+}
+#toh-table .tabulator-row:hover .tabulator-frozen {
+	background: var(--hover);
+}
+
+/* Frozen (Brand / Model) columns stay put while the rest scrolls sideways */
+#toh-table .tabulator-row .tabulator-frozen,
+#toh-table .tabulator-header .tabulator-frozen {
+	background: inherit;
+}
+#toh-table .tabulator-header .tabulator-frozen {
+	background: var(--surface-sunken);
+}
+#toh-table .tabulator-frozen.tabulator-frozen-left {
+	border-right: 1px solid var(--border);
+}
+#toh-table .tabulator-row .tabulator-frozen.tabulator-frozen-left:last-of-type,
+#toh-table .tabulator-header .tabulator-frozen.tabulator-frozen-left:last-of-type {
+	box-shadow: var(--shadow-frozen);
+}
+#toh-table .tabulator-cell[tabulator-field=brand],
+#toh-table .tabulator-cell[tabulator-field=model] {
+	font-weight: 500;
+}
+
+/* the row whose details popup is open */
+#toh-table .tabulator-row.popup-active,
+#toh-table .tabulator-row.popup-active:hover,
+#toh-table .tabulator-row.popup-active:hover .tabulator-frozen {
+	background: var(--primary-soft);
+}
+#toh-table .tabulator-row.popup-active {
+	box-shadow: inset 3px 0 0 var(--primary);
+}
+
+/* OpenWrt's own hardware */
+#toh-table .tabulator-row.brand-owrt,
+#toh-table .tabulator-row.brand-owrt .tabulator-frozen {
+	background: var(--pending-bg);
+}
+#toh-table .tabulator-row.brand-owrt:hover,
+#toh-table .tabulator-row.brand-owrt:hover .tabulator-frozen {
+	background: var(--hover);
+}
+
+
+/* Cells -------------------------------------------------------------------- */
+
+#toh-table .tabulator-cell A.tlink {
+	display: inline-flex;
+	align-items: center;
+	color: var(--text-muted);
+}
+#toh-table .tabulator-cell A.tlink.supportedsincecommit {
+	display: inline;
+}
+A.tlink .toh-ico {
+	width: 15px;
+	height: 15px;
+}
+
+A.tlink.firmwareopenwrtinstallurl,
+A.tlink.firmwareopenwrtsnapshotinstallurl {
+	color: #dc2626;
+}
+A.tlink.firmwareopenwrtupgradeurl,
+A.tlink.firmwareopenwrtsnapshotupgradeurl {
+	color: #16a34a;
+}
+A.tlink.firmwareoemstockurl {
+	color: #c026d3;
+}
+A.tlink.VIRT_firm {
+	color: var(--primary);
+}
+A.tlink.VIRT_firm .dlerror {
+	color: var(--warn);
 	opacity: 0.5;
 }
-#toh-table .tabulator-cell .fa-question.empty{
-	opacity: 0.2;
+#toh-table A.tlink:hover {
+	color: var(--text);
 }
-#toh-table .tabulator-cell .fa-question.unknown{
-	opacity: 0.5;
-	color: red;
+#toh-table A.tlink.VIRT_firm:hover .dlerror {
+	color: var(--danger);
 }
-#toh-table-container .tabulator-cell .cell-image.generic{
-	color: #ccc;
+
+#toh-table .tabulator-cell[tabulator-field=VIRT_edit] A {
+	color: var(--text-faint);
 }
-#toh-table .tabulator-cell .cell-image.generic:hover{
-	color: #666;
+#toh-table .tabulator-cell[tabulator-field=VIRT_edit] A:hover {
+	color: var(--primary);
+}
+.tabulator-col[tabulator-field="VIRT_edit"] .tabulator-col-title {
+	display: none;
+}
+
+/* Status badges ------------------------------------------------------------
+	Used for the release / availability columns, where "which release?" and
+	"can I still buy it?" are the two questions people scan for.
+*/
+.toh-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	max-width: 100%;
+	padding: 1px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 18px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.toh-badge::before {
+	content: '';
+	flex: none;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+.toh-badge-ok {
+	background: var(--ok-bg);
+	color: var(--ok);
+}
+.toh-badge-pending {
+	background: var(--pending-bg);
+	color: var(--pending);
+}
+.toh-badge-dead {
+	background: var(--dead-bg);
+	color: var(--dead);
+}
+.toh-badge-none {
+	background: transparent;
+	color: var(--text-faint);
+	padding-left: 0;
+}
+.toh-badge-none::before {
+	display: none;
+}
+
+/* yes / no / unknown markers.
+   Deliberately unscoped: the same marks are rendered in the details popup, and
+   scoping them to #toh-table left them uncoloured there. */
+.toh-mark-yes {
+	color: var(--ok);
+}
+.toh-mark-no {
+	color: var(--dead);
+	opacity: 0.75;
+}
+.toh-mark-unknown.dash {
+	color: var(--text-faint);
+}
+.toh-mark-unknown.empty {
+	color: var(--border-strong);
+}
+.toh-mark-unknown.unknown {
+	color: var(--warn);
+}
+
+#toh-table-container .tabulator-cell .cell-image.generic {
+	color: var(--border-strong);
+}
+#toh-table .tabulator-cell .cell-image.generic:hover {
+	color: var(--text-muted);
+}
+
+.toh-spacer {
+	display: inline-block;
+	height: 1px;
+}
+#toh-table .tabulator-cell .toh-spacer {
+	width: 4px;
 }
 
 
+/* Filtered column tinting -------------------------------------------------- */
 
-/* Image Preview -------------------------------------------- */
+#toh-table .tabulator-header .tabulator-col.toh-col-filter {
+	background: var(--filt-sidebar-bg);
+	box-shadow: inset 0 -2px 0 var(--filt-sidebar);
+}
+#toh-table .tabulator-header .tabulator-col.toh-col-headerfilter {
+	background: var(--filt-header-bg);
+	box-shadow: inset 0 -2px 0 var(--filt-header);
+}
+#toh-table .tabulator-header .tabulator-col.toh-col-allfilter {
+	background: var(--filt-all-bg);
+	box-shadow: inset 0 -2px 0 var(--filt-all);
+}
+
+
+/* Pagination footer -------------------------------------------------------- */
+
+/* the last thing in the card, so it carries the rounded bottom edge */
+#toh-table.tabulator .tabulator-footer {
+	padding: 8px 12px;
+	border: 0;
+	border-top: 1px solid var(--border);
+	border-radius: 0 0 var(--r-lg) var(--r-lg);
+	background: var(--surface-sunken);
+	color: var(--text-muted);
+}
+
+#toh-table .tabulator-footer .tabulator-page-counter {
+	color: var(--text-muted);
+	font-size: 12px;
+}
+#toh-table .tabulator-footer .tabulator-paginator LABEL {
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 500;
+}
+#toh-table .tabulator-footer .tabulator-page-size {
+	margin-right: 14px;
+	height: 26px;
+	padding: 0 6px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	font-size: 12px;
+	cursor: pointer;
+}
+#toh-table button.tabulator-page {
+	height: 26px;
+	min-width: 26px;
+	margin: 0 2px;
+	padding: 0 8px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text-muted);
+	font-size: 12px;
+	transition: all var(--t);
+}
+#toh-table button.tabulator-page:not(:disabled):hover {
+	background: var(--hover);
+	border-color: var(--border-strong);
+	color: var(--text);
+}
+#toh-table button.tabulator-page.active,
+#toh-table button.tabulator-page.active:hover {
+	border-color: var(--primary);
+	background: var(--primary);
+	color: #fff;
+	font-weight: 600;
+}
+
+.toh-table-loading {
+	margin-right: 10px;
+	color: var(--primary);
+	vertical-align: middle;
+}
+
+
+/* Cell tooltips ------------------------------------------------------------
+	Tabulator hides these on mouseout, which never fires on a touch screen - so
+	tapping a row left a stray white box with the model name in it, sitting over
+	the page next to the details popup. Tooltips are a hover affordance; on a
+	touch device there is nothing for them to do.
+*/
+@media (hover: none) {
+	.tabulator-tooltip {
+		display: none !important;
+	}
+}
+
+.tabulator-tooltip {
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text);
+	box-shadow: var(--shadow-lg);
+	font-size: 12px;
+}
+
+
+/* Image preview ------------------------------------------------------------ */
 
 #toh-image-preview {
 	position: absolute;
 	display: none;
-	z-index: 10005; /* over details popup */
-	border: 1px solid rgba(0,0,0,.3);
-	background-color: #fff;
-	box-shadow: 4px 4px 10px 2px rgba(0,0,0,.2);
-	border-radius: 5px;
+	z-index: 10005;					/* over the details popup */
+	padding: 4px;
+	border: 1px solid var(--border);
+	border-radius: var(--r);
+	background: var(--surface);
+	box-shadow: var(--shadow-lg);
 }
 #toh-image-preview img {
 	max-width: 300px;
 	max-height: 300px;
 	display: block;
-	border-radius: 5px;
+	border-radius: var(--r-sm);
 }
 
 
+/* #####################################################################################################
+##### Cell details popup ###############################################################################
+######################################################################################################## */
 
-/* Table ---------------------------------------------------- */
-
-#toh-table{
-	border: 0;
-}
-
-#toh-table-container{
-	border-top: 1px solid var(--toh-border);
-	height: 886px;
-}
-
-#toh-table.tabulator {
-	font-size: 13px;
-	overflow-anchor: none;
-	background-color: transparent;
-}
-
-#toh-table.tabulator .tabulator-tableholder {
-	background-color: #fafbfc;
-	overflow-x: scroll;
-	overflow-y: hidden;
-}
-
-#toh-table .tabulator-table{
-	/* border-bottom: #ccc 1px solid; */
-}
-/* .tabulator-row .tabulator-cell:not([style*="display: none"]):last-of-type {
-	border-right: none;
-	background: red;
-} */
-
-
-
-/* Table column headers ------------------------------------- */
-
-#toh-table .tabulator-header{
-	background-color: #f8fafc;
-}
-#toh-table .tabulator-header .tabulator-col{
-	background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-	border-right: 1px solid var(--toh-border);
-	font-weight: 600;
-	color: var(--toh-text);
-	transition: background var(--toh-transition);
-}
-#toh-table .tabulator-header .tabulator-col:hover{
-	background: linear-gradient(to bottom, #e2e8f0 0%, #cbd5e1 100%);
-}
-
-
-
-/* Header filter -------------------------------------------- */
-
-#toh-table .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {	
-	text-overflow: clip;
-	font-size: 12px;
-	font-weight: 600;
-}
-#toh-table .tabulator-header-filter {
-	padding-right: 15px;
-	margin-top: 6px;
-}
-#toh-table .tabulator-header-filter INPUT {
-	font-size: 12px;
-	line-height: 1.4;
-	padding: 4px 8px !important;
-	border: 1px solid var(--toh-border);
-	border-radius: 6px;
-	background: var(--toh-surface);
-	transition: all var(--toh-transition);
-}
-#toh-table .tabulator-header .tabulator-col-sorter {
-	display: block;
-	position: absolute;
-	top: 30px;
-	right: 0;
-	z-index: 10;
-}
-
-#toh-table .tabulator-header-filter INPUT:focus {
-	left: 0;
-	z-index: 9999;
-	background: #eff6ff;
-	border-color: var(--toh-primary);
-	box-shadow: 0 0 0 3px rgba(0, 153, 217, 0.15);
-	outline: none;
-}
-
-
-
-/* Footer --------------------------------------------------- */
-#toh-table.tabulator .tabulator-footer{
-	margin-top: -1px;
-	position: relative;	
-	border-top: 1px solid var(--toh-border);
-	background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-	border-radius: 0 0 var(--toh-radius-lg) var(--toh-radius-lg);
-}
-
-#toh-table .tabulator-footer .tabulator-page-counter{
-	color: var(--toh-text-secondary);
-}
-#toh-table .tabulator-footer .tabulator-paginator LABEL{
-	font-weight: 500;
-	color: var(--toh-text-secondary);
-}
-#toh-table .tabulator-footer .tabulator-page-size{
-	margin-right: 15px;
-	border: 1px solid var(--toh-border);
-	border-radius: 6px;
-	padding: 4px 8px;
-	background: var(--toh-surface);
-}
-@media screen and (max-width: 760px) {
-	#toh-table .tabulator-footer .tabulator-page-size{
-		margin-right: 5px;
-	}
-	#toh-table .tabulator-footer .tabulator-page-counter{
-		font-size: 11px;
-	}
-}
-
-#toh-table button.tabulator-page{
-	border: 1px solid var(--toh-border);
-	border-radius: 6px;
-	margin: 0 2px;
-	padding: 4px 10px;
-	background: var(--toh-surface);
-	transition: all var(--toh-transition);
-}
-#toh-table button.tabulator-page:hover{
-	background: var(--toh-primary);
-	color: #fff;
-	border-color: var(--toh-primary);
-}
-#toh-table button.tabulator-page.active{
-	color: #fff;
-	background: var(--toh-primary);
-	border-color: var(--toh-primary);
-	font-weight: 600;
-}
-
-
-
-.toh-table-loading {
-	position: relative;
-	margin-right: 10px;
-	vertical-align: middle;
-	color: #000;
-	font-size: 14px;
-}
-
-
-
-/* VIRT_edit column  ---------------------------------------- */
-
-.tabulator-col[tabulator-field="VIRT_edit"] .tabulator-col-title{
-	display: none;
-}
-
-
-
-/* Cells --------------------------------------- */
-#toh-table .fa-warning.dlerror{
-}
-
-
-#toh-table .tabulator-cell .tlink,
-#toh-table .tabulator-cell .cell-image{
-	font-size: 14px;
-}
-
-.toh-spacer{
-	display: inline-block;
-	height: 1px;
-}
-
-#toh-table .tabulator-cell .toh-spacer{
-	width: 1px;
-}
-
-#toh-table .tabulator-cell A.tlink{
-	display: block;
-	height: 100%;
-}
-#toh-table .tabulator-cell A.tlink.supportedsincecommit{
-	display: inline;
-}
-
-A.tlink I{
-	margin-right: 1px;
-}
-
-
-A.tlink.firmwareopenwrtinstallurl,
-A.tlink.firmwareopenwrtsnapshotinstallurl{
-	color: rgb(217, 0, 0);
-}
-
-A.tlink.firmwareopenwrtupgradeurl,
-A.tlink.firmwareopenwrtsnapshotupgradeurl{
-	color: rgb(0, 154, 0);
-}
-
-A.tlink.firmwareoemstockurl{
-	color: rgb(243, 0, 223);
-}
-
-A.tlink.VIRT_firm{
-	color:rgb(0, 163, 225);
-}
-A.tlink.VIRT_firm I.dlerror{
-	color: orange;
-	opacity: 0.4;
-}
-
-#toh-table A.tlink:hover I{
-	color: #000;
-	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-	opacity: 1;
-}
-#toh-table A.tlink.VIRT_firm:hover I.dlerror{
-	color: red;
-}
-
-#toh-table .tabulator-cell[tabulator-field=VIRT_edit] A{
-	opacity: 0.6;
-}
-#toh-table .tabulator-cell[tabulator-field=VIRT_edit] A:hover{
-	opacity: 1;
-}
-
-
-
-/* Hover and Active Rows ----------------------------------------- */  
-#toh-table .tabulator-row.popup-active{
-	background: linear-gradient(135deg, #334155 0%, #475569 100%);
-}
-#toh-table .tabulator-row.popup-active,
-.tabulator-row.popup-active A{
-	color: #fff;
-}
-
-/* row hover ---- */
-#toh-table .tabulator-row:hover {
-	background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-	transition: background 0.15s ease;
-}
-#toh-table .tabulator-row:hover,
-#toh-table .tabulator-row:hover A{
-	color: var(--toh-text);
-}
-#toh-table .tabulator-row.popup-active:hover {
-	background: linear-gradient(135deg, #475569 0%, #64748b 100%);
-}
-#toh-table .tabulator-row.popup-active:hover,
-#toh-table .tabulator-row.popup-active:hover A{
-	color: #fff;
-}
-
-
-/* Cell Details Popup ----------------------------------------- */  
-
-.toh-details-container{
+.toh-details-container {
 	border: 0;
 	padding: 0;
-	background-color: transparent;
+	background: transparent;
 	box-shadow: none;
 	height: auto !important;
 	overflow: auto;
 }
-.toh-details-border{
-	border: 1px solid var(--toh-border);
-	box-shadow: var(--toh-shadow-lg);
-	margin: 8px 16px 16px 8px;
-	border-radius: var(--toh-radius-lg);
+
+.toh-details-border {
+	margin: 6px 16px 16px 6px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-lg);
+	background: var(--surface);
+	box-shadow: var(--shadow-lg);
 	overflow: hidden;
 }
-.toh-details-head{
+
+.toh-details-head {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	color: #fff;
-	background: linear-gradient(135deg, #334155 0%, #475569 100%);
+	gap: 16px;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--border);
+	background: var(--surface);
+	color: var(--text);
 	font-size: 14px;
-	line-height: 1.5;
-	padding: 10px 16px;
+	font-weight: 600;
 }
-.toh-details-close{
-	line-height: 100%;
-	opacity: 0.7;
-	transition: all var(--toh-transition);
-	padding: 4px;
-	border-radius: 4px;
-}
-.toh-details-close:hover{
-	cursor: pointer;
-	opacity: 1;
-	background: rgba(255, 255, 255, 0.1);
-}
-.toh-details-title{
-	line-height: 100%;
-	font-size: 13px;
-}
-.toh-details-bottom{
-	height: 5px;
-}
-.toh-details-content{
-	column-count: 4;
-	column-gap: 16px;
-	padding: 16px;
-	background-color: #f8fafc;
+.toh-details-head A {
+	color: var(--text);
 }
 
-@media screen and (max-width: 1600px) {
-	.toh-details-content {
-		column-count: 3;
-	}
+.toh-details-close {
+	display: flex;
+	color: var(--text-faint);
+	cursor: pointer;
+	transition: color var(--t);
 }
-@media screen and (max-width: 1290px) {
-	.toh-details-content {
-		column-count: 2;
-	}
+.toh-details-close:hover {
+	color: var(--danger);
 }
-@media screen and (max-width: 960px) {
-	.toh-details-content {
-		column-count: 1;
-	}
+.toh-details-close .toh-ico {
+	width: 18px;
+	height: 18px;
 }
-.toh-details-group{
-	margin-bottom: 12px;
+
+.toh-details-content {
+	column-count: 4;
+	column-gap: 20px;
+	padding: 16px;
+	background: var(--surface-sunken);
+}
+@media screen and (max-width: 1600px) { .toh-details-content { column-count: 3; } }
+@media screen and (max-width: 1290px) { .toh-details-content { column-count: 2; } }
+@media screen and (max-width: 960px)  { .toh-details-content { column-count: 1; } }
+
+.toh-details-group {
+	margin-bottom: 16px;
 	break-inside: avoid;
 }
-.toh-details-title{
+
+.toh-details-title {
 	padding: 0 0 6px 2px;
-	line-height: 100%;
-	color: var(--toh-text-secondary);
+	color: var(--text-faint);
 	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	letter-spacing: 0.06em;
 }
-TABLE.toh-details-table{
+
+TABLE.toh-details-table {
 	width: 100%;
 	border-spacing: 0;
 	border-collapse: separate;
-	margin-bottom: 12px;
-	box-shadow: var(--toh-shadow-sm);
-	border-radius: var(--toh-radius);
+	border: 1px solid var(--border);
+	border-radius: var(--r);
+	background: var(--surface);
 	overflow: hidden;
 }
-.toh-details-table TD{
+.toh-details-table TD {
+	padding: 7px 10px;
 	font-size: 13px;
 	line-height: 1.5;
-}
-
-.toh-details-key,
-.toh-details-value{
-	padding: 8px 10px;
-}
-
-.toh-details-key{
-	padding-left: 10px;
-	padding-right: 12px;
-	width: 120px;
-	border-top: 1px solid var(--toh-border);
-	border-left: 1px solid var(--toh-border);
-	border-right: 1px solid var(--toh-border);
-	background-color: #f1f5f9;
 	vertical-align: top;
+}
+.toh-details-table TR + TR TD {
+	border-top: 1px solid var(--border);
+}
+
+.toh-details-key {
+	width: 130px;
+	background: var(--surface-sunken);
+	border-right: 1px solid var(--border);
 	text-align: right;
 	font-weight: 500;
-	color: var(--toh-text-secondary);
+	color: var(--text-muted);
 }
-.toh-details-key A{
-	color: var(--toh-text-secondary);
-	text-decoration: none;
+.toh-details-key A {
 	display: block;
-	transition: color var(--toh-transition);
+	color: var(--text-muted);
 }
-.toh-details-key A:hover{
-	color: var(--toh-primary);
+.toh-details-key A:hover {
 	cursor: help;
+	color: var(--primary);
 }
 
-.toh-details-value{
-	padding-left: 12px;
-	padding-right: 10px;
-	border-top: 1px solid var(--toh-border);
-	border-right: 1px solid var(--toh-border);
-	background-color: var(--toh-surface);
-	color: var(--toh-text);
-	word-break: break-all;
+.toh-details-value {
+	color: var(--text);
+	word-break: break-word;
 }
-.toh-details-value I{
-	font-size: 14px;
+
+/* Link rows span the table: their label already names the destination, so a key
+   cell beside them would only repeat it. Some rows hold two links (origin and
+   GitHub commit), hence the wrapping flex row. */
+.toh-details-link {
+	background: var(--surface);
 }
-.toh-details-value .toh-spacer{
+.toh-details-linkrow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 18px;
+}
+.toh-details-link A {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+.toh-details-link .toh-ico {
+	width: 15px;
+	height: 15px;
+	flex: none;
+}
+.toh-details-link .toh-spacer {
+	display: none;					/* the flex gap spaces these now */
+}
+.toh-details-value .toh-ico {
+	width: 15px;
+	height: 15px;
+}
+.toh-details-value .toh-spacer {
 	width: 14px;
 	height: 3px;
 	display: block;
 }
 
-.toh-details-table TR:first-child .toh-details-key{
-	border-radius: var(--toh-radius) 0 0 0;
-}
-.toh-details-table TR:first-child .toh-details-value{
-	border-radius: 0 var(--toh-radius) 0 0;
-}
-.toh-details-table TR:last-child .toh-details-key{
-	border-radius: 0 0 0 var(--toh-radius);
-}
-.toh-details-table TR:last-child .toh-details-value{
-	border-radius: 0 0 var(--toh-radius) 0;
-}
-.toh-details-table TR:last-child TD{
-	border-bottom: 1px solid var(--toh-border);
+.toh-details-bottom {
+	height: 5px;
 }
 
 
+/* #####################################################################################################
+##### Tips / changelog / footer ########################################################################
+######################################################################################################## */
 
-
-
-/* Colors ################################################################################################ */  
-
-#toh-table .tabulator-header-filter INPUT{
-	background-color: #f8fafc;	
+#toh-info {
+	margin-top: 24px;
 }
 
-/* filtered cols */
-#toh-table .tabulator-col.toh-col-filtered{
+#toh-info .toh-card {
+	padding: 16px 20px;
+	margin-bottom: 16px;
+	font-size: 13px;
 }
 
-#toh-filters-title.active,
-#toh-filters-presets A,
-#toh-table .tabulator-col.toh-col-filter,
-A.toh-but-clearfilters{
-	background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-	border-color: #6ee7b7;
+#toh-info H4 {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin-bottom: 10px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-muted);
+}
+#toh-info H4 .toh-ico {
+	width: 15px;
+	height: 15px;
+	color: var(--text-faint);
+}
+#toh-info H4 A {
+	display: inline-flex;
+	color: var(--text-faint);
+}
+#toh-info H4 A:hover {
+	color: var(--primary);
 }
 
-#toh-table .tabulator-col.toh-col-headerfilter,
-A.toh-but-clearheaderfilters{
-	background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-	border-color: #a5b4fc;
+#toh-tips UL,
+#toh-changelog-latest UL,
+#toh-changelog-previous {
+	column-count: 3;
+	column-gap: 32px;
+	padding-left: 18px;
 }
-#toh-table .tabulator-col.toh-col-allfilter,
-A.toh-but-clearallfilters{
-	background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
-	border-color: #67e8f9;
+@media screen and (max-width: 1600px) {
+	#toh-tips UL,
+	#toh-changelog-latest UL,
+	#toh-changelog-previous { column-count: 2; }
 }
-
-
-
-
-
-/* Highlight OpenWrt own Devices ############################################################# */
-#toh-table .tabulator-row.brand-owrt{
-	background-color: rgba(236, 72, 153, 0.1);
-	border: 1px solid rgba(236, 72, 153, 0.2);
-	border-width: 1px 0;
-	color: var(--toh-text);
-}
-#toh-table .tabulator-row.brand-owrt:hover{
-	background-color: rgba(236, 72, 153, 0.2);
+@media screen and (max-width: 900px) {
+	#toh-tips UL,
+	#toh-changelog-latest UL,
+	#toh-changelog-previous { column-count: 1; }
 }
 
-
-
-
-/* Overrides for "branch-dev" BODY class ############################################################# */
-
-BODY.branch-dev #toh-header-bg,
-BODY.branch-dev #toh-footer-bg,
-BODY.branch-dev #toh-boot-overlay-bg{
-	background: repeating-linear-gradient(-45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 15px, rgba(255,255,255,0.02) 15px, rgba(255,255,255,0.02) 30px);
+#toh-tips LI {
+	color: var(--text-muted);
+	line-height: 1.6;
+	margin-bottom: 2px;
 }
-BODY.branch-dev #toh-dev-badge{
+
+#toh-changelog {
+	background: var(--pending-bg);
+	border-color: transparent;
+	box-shadow: inset 3px 0 0 var(--pending);
+}
+#toh-changelog HR {
+	border-color: var(--pending);
+	opacity: 0.3;
+}
+#toh-changelog H5 {
+	margin-bottom: 3px;
+	color: var(--warn);
+	font-size: 13px;
+}
+/* release notes are pasted markdown: long URLs would otherwise run out of the card */
+#toh-changelog,
+#toh-tips {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+#toh-changelog A {
+	overflow-wrap: anywhere;
+}
+#toh-changelog H5 .badge {
+	margin-left: 8px;
+}
+#toh-changelog UL {
+	padding-left: 20px;
+	color: var(--text-muted);
+}
+#toh-changelog-latest {
+	margin-bottom: 16px;
+}
+.toh-changelog-release {
+	break-inside: avoid-column;
+	margin-bottom: 14px;
+}
+#toh-changelog-desc {
+	float: right;
+	color: var(--danger);
+	font-size: 11px;
+}
+
+/* A real band across the page, so the document has a visible bottom edge
+   rather than trailing off after the last card. */
+#toh-footer {
+	margin-top: 32px;
+	border-top: 1px solid var(--border);
+	background: var(--surface);
+	color: var(--text-muted);
+	font-size: 13px;
+	text-align: center;
+}
+.toh-footer-inner {
+	max-width: var(--shell-max);
+	margin: 0 auto;
+	padding: 24px var(--gutter);
+}
+#toh-footer A {
+	color: var(--text-muted);
+	font-weight: 500;
+}
+#toh-footer A:hover {
+	color: var(--primary);
+}
+#toh-footer .toh-ico {
+	width: 12px;
+	height: 12px;
+}
+
+
+/* #####################################################################################################
+##### Responsive #######################################################################################
+######################################################################################################## */
+
+/* On a short window the hero would push the table off the screen, so it gives
+   up its breathing room first. */
+@media screen and (max-height: 820px) {
+	#toh-hero {
+		padding-top: 18px;
+	}
+	#toh-hero H1 {
+		font-size: 24px;
+	}
+	#toh-lede {
+		display: none;
+	}
+	.toh-herosearch {
+		height: 44px;
+		margin-top: 14px;
+	}
+	#toh-stats {
+		margin-top: 16px;
+	}
+	.toh-stat-value {
+		font-size: 22px;
+	}
+}
+
+/* the column picker cannot keep 5 columns forever */
+@media screen and (max-width: 1400px) {
+	#toh-cols-container { width: 700px; }
+	.toh-cols-list-multi { column-count: 4; }
+}
+@media screen and (max-width: 1100px) {
+	#toh-cols-container { width: 540px; }
+	.toh-cols-list-multi { column-count: 3; }
+}
+
+/* below this the sidebar becomes an overlay drawer */
+@media screen and (max-width: 1000px) {
+	:root {
+		--gutter: 16px;
+	}
+
+	#toh-sidebar-toggle {
+		display: flex;
+	}
+
+	#toh-shell {
+		display: block;
+	}
+
+	#toh-sidebar {
+		position: fixed;
+		top: var(--appbar-h);
+		left: 0;
+		z-index: 950;
+		width: var(--sidebar-w);
+		max-width: 88vw;
+		transform: translateX(-100%);
+		transition: transform 0.2s ease;
+		box-shadow: var(--shadow-lg);
+	}
+	BODY.toh-sidebar-open #toh-sidebar {
+		transform: none;
+	}
+
+	BODY.toh-sidebar-open #toh-sidebar-scrim {
+		display: block;
+		position: fixed;
+		inset: var(--appbar-h) 0 0 0;
+		z-index: 940;
+		background: rgba(17, 24, 39, 0.3);
+	}
+
+	#toh-pagehead H1 {
+		font-size: 24px;
+	}
+	#toh-stats {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media screen and (max-width: 760px) {
+	#toh-appbar-title {
+		font-size: 13px;
+	}
+	.toh-appbar-link {
+		display: none;
+	}
+
+	/* the count gets its own line so Sorts / Columns / Export stay on one row
+	   even on a 360px phone */
+	#toh-toolbar {
+		gap: 8px;
+		padding: 10px 12px;
+	}
+	#toh-toolbar-count {
+		flex: 1 0 100%;
+	}
+	#toh-toolbar-actions {
+		flex: 1 1 100%;
+		margin-left: 0;
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+	#toh-toolbar-actions A.toh-but {
+		padding: 0 9px;
+		gap: 5px;
+	}
+
+	#toh-cols-container,
+	.toh-menu-panel {
+		position: fixed;
+		left: var(--gutter);
+		right: var(--gutter);
+		width: auto;
+		max-width: none;
+	}
+	.toh-cols-list-multi {
+		column-count: 2;
+	}
+
+	#toh-lede {
+		font-size: 13px;
+	}
+	.toh-stat {
+		padding: 12px;
+	}
+	.toh-stat-value {
+		font-size: 18px;
+	}
+}
+
+@media screen and (max-width: 560px) {
+	/* the logo already reads "OpenWrt"; the app bar cannot hold both */
+	#toh-appbar-title {
+		display: none;
+	}
+	#toh-hero H1 {
+		font-size: 22px;
+	}
+	.toh-herosearch {
+		height: 46px;
+		padding: 0 12px;
+	}
+	.toh-search-input {
+		font-size: 14px;
+	}
+	.toh-search-group:last-of-type {
+		display: none;				/* keep only the model search on tiny screens */
+	}
+	#toh-stats {
+		gap: 12px 28px;
+	}
+	.toh-stat-value {
+		font-size: 24px;
+	}
+}
+
+
+/* #####################################################################################################
+##### Misc #############################################################################################
+######################################################################################################## */
+
+/* Develop-branch marker */
+BODY.branch-dev #toh-appbar {
+	border-bottom-color: #fecaca;
+	box-shadow: inset 0 -3px 0 -1px #fee2e2;
+}
+BODY.branch-dev #toh-dev-badge {
 	display: inline-block;
 }
 
-/* Modern Scrollbar Styling ############################################################# */
+/* Scrollbars */
 ::-webkit-scrollbar {
 	width: 10px;
 	height: 10px;
 }
 ::-webkit-scrollbar-track {
-	background: #f1f5f9;
-	border-radius: 5px;
+	background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-	background: #cbd5e1;
-	border-radius: 5px;
-	border: 2px solid #f1f5f9;
+	background: var(--border-strong);
+	border-radius: 999px;
+	border: 3px solid var(--bg);
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: #94a3b8;
+	background: var(--text-faint);
 }
 
-/* Focus Visible for Accessibility ############################################################# */
-:focus-visible {
-	outline: 2px solid var(--toh-primary);
-	outline-offset: 2px;
-}
-
-/* Smooth Transitions ############################################################# */
-* {
-	transition-timing-function: ease;
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }
