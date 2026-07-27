@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Version 1.80b4 - 2026-07-xx
+## Version 1.80 - 2026-07-27
 
 * docs: fix typos and grammar in README
 * ci: add Dependabot configuration
