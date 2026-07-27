@@ -1,10 +1,12 @@
 # CHANGELOG
 
-## Version 1.80b2 - 2026-07-xx
+## Version 1.80b3 - 2026-07-xx
 * docs: fix typos and grammar in README
 * ci: add Dependabot configuration
 * deps: upgrade Bootstrap, jQuery and FontAwesome
-* correct typos in labels and improve tips box layout
+* Correct typos in labels and improve tips box layout
+* Show device images in a lightbox
+* Populate model & brand search in the URL
 
 
 ## Version 1.79 - 2026-05-19
