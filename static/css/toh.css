@@ -1011,7 +1011,7 @@ A.toh-but:hover{
 	font-size: 9px;
 	font-weight: 700;
 	vertical-align: super;
-	margin-left: -3px;
+	/* margin-left: -3px; */
 	color: #0081b3;
 }
 
@@ -1308,6 +1308,9 @@ background-color: #ddf;
 #toh-table .tabulator-cell .cell-image{
 	font-size: 14px;
 }
+#toh-table .tabulator-cell A.cell-image{
+	text-decoration: none;
+}
 
 .toh-spacer{
 	display: inline-block;
@@ -1559,6 +1562,9 @@ TABLE.toh-details-table{
 	border-bottom: 1px solid rgba(0,0,0,0.15);
 }
 
+.toh-details-value A.cell-image{
+	text-decoration: none;
+}
 
 
 
