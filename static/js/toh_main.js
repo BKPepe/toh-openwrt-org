@@ -106,7 +106,7 @@ function htmlFilterDiv(filt,key,is_feature=false){
 
 // display Filters Presets ------------------------------------------------
 function buildFiltersPresets(){
-	tmp_html='';
+	var tmp_html='';
 	for (const key in toh_filterPresets){
 		tmp_html+=htmlFilterDiv(toh_filterPresets[key],key);
 	}
@@ -115,7 +115,7 @@ function buildFiltersPresets(){
 
 // display Filters Features ------------------------------------------------
 function buildFiltersFeatures(){
-	tmp_html='';
+	var tmp_html='';
 	for (const group in toh_filterGroups){
 		tmp_html +=htmlGroup(toh_filterGroups[group].title,group,'filt');
 		toh_filterGroups[group].members.forEach(filt => {
@@ -187,14 +187,15 @@ function clearAllFeatures() {
 // Return a (flatted) list of the current filtered fields ------------------
 function getTableFiltersFields(type='filters'){
 	var fields=[];
+	var filters;
 	if(type=='filters'){
-		var filters	=tabuTable.getFilters();
+		filters	=tabuTable.getFilters();
 	}
 	else if(type=='headerfilters'){
-		var filters	=tabuTable.getHeaderFilters();
+		filters	=tabuTable.getHeaderFilters();
 	}
 	else{ // all
-		var filters	=tabuTable.getFilters(true);
+		filters	=tabuTable.getFilters(true);
 	}
 	myLogFunc('getTableFiltersFields type='+type+' ----');
 	myLogObj(filters,'filters');
@@ -300,11 +301,12 @@ function reorderFilters(filters) {
 // get filters array (also merge features filters for Presets)--------------------
 function getFilterSet(type, key){
 	myLogFunc();
+	var set;
 	if(type=='preset' && key in toh_filterPresets){
-		var set=JSON.parse(JSON.stringify(toh_filterPresets[key])); // makes a clone
+		set=JSON.parse(JSON.stringify(toh_filterPresets[key])); // makes a clone
 	}
 	else if(type=='feature' && key in toh_filterFeatures){
-		var set=JSON.parse(JSON.stringify(toh_filterFeatures[key])); // makes a clone
+		set=JSON.parse(JSON.stringify(toh_filterFeatures[key])); // makes a clone
 	}
 	else{
 		myLogStr('getFilterSet - Type: '+ type +', Unknown key: "'+key+'"');
@@ -519,7 +521,7 @@ function applyColumCol(key,state){
 // get filters array (also merge features filters for Presets)--------------------------
 function getColumnSet(key){
 	myLogFunc();
-	set=[];
+	var set=[];
 	if(key=='all'){
 		$.each(toh_colPresets,function(k,col){
 			if(!set.includes(col)){
@@ -568,7 +570,7 @@ function updateColGroupIcons(){
 	$('.toh-viewgroup').each(function(i){
 		var total=$(this).find('.toh-col-column').length;
 		var checked=$(this).find('.toh-col-column INPUT:checked').length;
-		var icon ="";
+		var icon;
 		if(checked==total){
 			icon='fa-regular fa-square-check';
 		}
@@ -586,11 +588,12 @@ function updateColGroupIcons(){
 function setPresetSelectedClass(type,key=''){
 	myLogFunc('setPresetSelectedClass : '+type+'/'+key);
 	var myclass='toh-selected';
+	var sel;
 	if(type=='features'){
-		var sel='.toh-filters-presets';
+		sel='.toh-filters-presets';
 	}
 	else if(type=='columns'){
-		var sel='#toh-cols-title .toh-top-title-presets';
+		sel='#toh-cols-title .toh-top-title-presets';
 
 	}
 	else{
@@ -615,7 +618,7 @@ function setPresetSelectedClass(type,key=''){
 
 // Get Url parameter -----------------------------------------------
 function getUrlParameter(name) {
-	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+	name = name.replace(/\[/, '\\[').replace(/[\]]/, '\\]');
 	var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
 	var results = regex.exec(location.search);
 	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
@@ -762,7 +765,7 @@ function loadCookie(c_name, type='json'){
 // Load All Preset Cookies -----------------------------
 function loadPresetCookies(type){ //'features' or 'columns'
 	myLogFunc('loadCookie name: '+type);
-	var c_value	='';
+	var c_value;
 
 	for (let i = 1; i <= toh_prefs.cook_preset_count; i++) {
 		c_value=loadCookie(toh_prefs['cook_name_'+type]+i);
@@ -819,8 +822,8 @@ function deletePresetCookie(type, number){
 // Build User Preset Menu -----------------------------
 function buildUserPresets(type){// type= 'features' or 'columns'
 	myLogFunc('buildUserPresets: '+type);
-	var sel='';
-	var name='';
+	var sel;
+	var name;
 	var html='';
 	if(type=='features'){
 		sel="#toh-filters-upresets .toh-upresets-content";
@@ -1274,8 +1277,8 @@ function SetDefaults(){
 // Display filtered / total count ------------------------------------------
 function UpdateCountRows(){
 	var html='';
-	selected	=tabuTable.getDataCount("active");
-	total		=tabuTable.getDataCount();
+	var selected	=tabuTable.getDataCount("active");
+	var total		=tabuTable.getDataCount();
 	if(selected < total){
 		html='<b>'+selected+"</b> / ";
 	}
@@ -1290,8 +1293,8 @@ function UpdateCountRows(){
 // Display filtered / total count ------------------------------------------
 function UpdateCountCols(){
 	var html='';
-	selected	=tabuTable.getColumns().filter(col => col.isVisible()).length;
-	total		=tabuTable.getColumns().length;
+	var selected	=tabuTable.getColumns().filter(col => col.isVisible()).length;
+	var total		=tabuTable.getColumns().length;
 	if(selected < total){
 		html='<b>'+selected+"</b> / ";
 	}
@@ -1884,7 +1887,7 @@ $(document).ready(function () {
 	// Click: Feature link ----------------------
 	$('#toh-top-filters').on('click','.toh-filter-title A',function(e){
 		e.preventDefault();
-		var cb=$(this).parent().find('INPUT').trigger('click');
+		$(this).parent().find('INPUT').trigger('click');
 	});
 
 	// Click: Replace Option immediately populates columns ----------------------
@@ -1926,7 +1929,7 @@ $(document).ready(function () {
 	$('.toh-cols-list').on('click','A',function(e){
 		myLogFunc('on Click Checkbox Link');
 		e.preventDefault();
-		var cb=$(this).parent().find('INPUT').trigger('click');
+		$(this).parent().find('INPUT').trigger('click');
 	});
 
 	//  Click: View Group ---------------------------------------------------
@@ -2504,7 +2507,7 @@ function FormatterEditHwData(cell, formatterParams, onRendered) {
 
 // --------------------------------------------------------
 function isGenerigImage(url){
-	var tmp='';
+	var tmp;
 	if (typeof url === "string"){
 		tmp=url;
 	}
@@ -2622,7 +2625,7 @@ function FormatterArray(cell, formatterParams, onRendered) {
 // --------------------------------------------------------
 function FormatterYesNo(cell, formatterParams, onRendered) {
 	var value = cell.getValue();
-	var icon='';
+	var icon;
 	if (typeof value === "string") {
 		value=value.toLowerCase().trim();
 	}

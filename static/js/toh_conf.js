@@ -72,7 +72,6 @@ let tabulatorOptions={
 	paginationCounter:"rows", 			//add pagination row counter
 	paginationButtonCount: 10,
 	paginationSize: 30,
-	paginationSizeSelector:true,
 	paginationSizeSelector:[10, 20, 30, 40, 50, 75, 100, 200, 300], //enable page size select element with these options
 
 	rowFormatter: _rfRowFormatter,
