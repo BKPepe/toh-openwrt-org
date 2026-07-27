@@ -2844,6 +2844,7 @@ function CellPopupModel(e, cell, onRendered) {
 	const { base, ...myColGroups } = toh_colGroups;
 	$.each(myColGroups, function(key, obj) {
 		var done = false;
+		var links = '';			// link rows, appended after the key/value rows
 		$.each(obj.fields, function(f, field) {
 			// Get column definition and raw value
 			var col = getMyColumnDefinition(field);
@@ -2881,11 +2882,13 @@ function CellPopupModel(e, cell, onRendered) {
 
 			// Link columns already render a descriptive label ("Hardware Data
 			// Page"), so a key cell next to them would just say the same thing
-			// again in abbreviated form ("HwData"). Give them the full row.
+			// again in abbreviated form ("HwData"). Give them the full row -
+			// and hold them back so they land together at the end of the group
+			// instead of breaking up the key/value rows.
 			if (mycol.formatterParams && mycol.formatterParams.label) {
 				// the flex layout goes on an inner div: making the TD itself a
 				// flex container takes it out of the table and voids the colspan
-				contents += "<tr><td class='toh-details-link' colspan='2'><div class='toh-details-linkrow'>" + formattedValue + "</div></td></tr>";
+				links += "<tr><td class='toh-details-link' colspan='2'><div class='toh-details-linkrow'>" + formattedValue + "</div></td></tr>";
 				return true;
 			}
 
@@ -2893,7 +2896,11 @@ function CellPopupModel(e, cell, onRendered) {
 			var label = col.headerTooltip || col.title;
 			contents += '<tr><td class="toh-details-key"><a href="#" title="'+ col.headerTooltip +'">' + label + "</a></td><td class='toh-details-value'>" + formattedValue + "</td></tr>";
 		});
-		if (done) contents += "</table>\n</div>";
+		if (done) contents += links + "</table>\n</div>";
+		else if (links) {
+			contents += "<div class='toh-details-group'>\n<div class='toh-details-title'>" + obj.name
+				+ "</div>\n<table class='toh-details-table'>" + links + "</table>\n</div>";
+		}
 	});
 
 	contents += "</div></div><div class='toh-details-bottom'></div>";
@@ -3020,7 +3027,7 @@ function FormatterLinkCommit(cell, params={}, onRendered) {
 		html +="<span class='toh-spacer'></span>";
 
 		params.icon='git-branch';
-		params.ttip='Github Commit';
+		params.ttip='GitHub Commit';
 		if(label){params.label=params.ttip;}
 		params.ttip +=" "+commit;
 		params.url=toh_urls.github_commit + commit;
