@@ -2114,6 +2114,54 @@ TABLE.toh-compare-table {
 	font-weight: 600;
 }
 
+/* "Compare against the first device" */
+.toh-compare-table TH.is-ref,
+.toh-compare-table TD.is-ref {
+	background: var(--surface-sunken);
+}
+.toh-compare-table TD.is-off-ref {
+	background: var(--pending-bg);
+	color: var(--pending);
+	font-weight: 600;
+}
+.toh-compare-reftag {
+	display: inline-block;
+	margin-top: 4px;
+	padding: 1px 7px;
+	border-radius: 999px;
+	background: var(--border);
+	color: var(--text-muted);
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.toh-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	color: var(--text-muted);
+	font-size: 13px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+.toh-switch INPUT {
+	width: 15px;
+	height: 15px;
+	margin: 0;
+	accent-color: var(--primary);
+	cursor: pointer;
+}
+
+#toh-compare-opts {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px 18px;
+	justify-content: flex-end;
+}
+
 .toh-compare-none {
 	color: var(--text-faint);
 }
@@ -2135,6 +2183,239 @@ TABLE.toh-compare-table {
 	.toh-compare-table TD {
 		padding: 8px 10px;
 	}
+}
+
+
+/* #####################################################################################################
+##### Manufacturer / chipset pages #####################################################################
+######################################################################################################## */
+
+#toh-facet-panel {
+	margin-top: 4px;
+}
+#toh-facet-head {
+	display: flex;
+	justify-content: flex-end;
+	padding: 14px 18px 0;
+}
+#toh-facet-body {
+	padding: 4px 18px 24px;
+}
+
+.toh-facet-kind {
+	color: var(--text-faint);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+.toh-facet-title H2 {
+	margin-top: 2px;
+	font-size: 26px;
+	letter-spacing: -0.02em;
+}
+.toh-facet-count {
+	margin-top: 4px;
+	color: var(--text-muted);
+	font-size: 14px;
+}
+.toh-facet-count B {
+	color: var(--text);
+	font-weight: 650;
+}
+
+/* the few things we can state about the group itself */
+.toh-facet-facts {
+	margin-top: 20px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 10px;
+	max-width: 760px;
+}
+.toh-fact {
+	padding: 12px 14px;
+	border: 1px solid var(--border);
+	border-radius: var(--r);
+	background: var(--surface-sunken);
+}
+.toh-fact-label {
+	display: block;
+	color: var(--text-muted);
+	font-size: 12px;
+}
+.toh-fact-value {
+	display: block;
+	margin-top: 3px;
+	color: var(--text);
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.toh-facet-block {
+	margin-top: 28px;
+}
+.toh-facet-block H3 {
+	margin-bottom: 10px;
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+/* Support breakdown -------------------------------------------------------- */
+
+.toh-supportbar {
+	display: flex;
+	height: 12px;
+	max-width: 760px;
+	border-radius: 999px;
+	overflow: hidden;
+	background: var(--border);
+}
+.toh-supportbar-part.is-supported	{ background: var(--ok); }
+.toh-supportbar-part.is-snapshot	{ background: var(--pending); }
+.toh-supportbar-part.is-eol			{ background: var(--dead); }
+.toh-supportbar-part.is-unknown		{ background: var(--border-strong); }
+
+.toh-supportbar-legend {
+	margin-top: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 20px;
+	font-size: 13px;
+	color: var(--text-muted);
+}
+.toh-legend {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+.toh-legend B {
+	color: var(--text);
+}
+.toh-legend I {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+}
+.toh-legend.is-supported I	{ background: var(--ok); }
+.toh-legend.is-snapshot I	{ background: var(--pending); }
+.toh-legend.is-eol I		{ background: var(--dead); }
+.toh-legend.is-unknown I	{ background: var(--border-strong); }
+
+/* Related chips ------------------------------------------------------------ */
+
+.toh-facet-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.toh-facet-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 4px 6px 4px 11px;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--surface);
+	color: var(--text);
+	font-size: 13px;
+}
+A.toh-facet-chip:hover {
+	border-color: var(--primary);
+	background: var(--primary-soft);
+	color: var(--primary);
+}
+.toh-facet-chip B {
+	padding: 0 7px;
+	border-radius: 999px;
+	background: var(--surface-sunken);
+	color: var(--text-muted);
+	font-size: 11px;
+	font-weight: 600;
+}
+
+/* Device list -------------------------------------------------------------- */
+
+TABLE.toh-facet-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+.toh-facet-table TH {
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--border);
+	color: var(--text-muted);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	text-align: left;
+}
+.toh-facet-table TD {
+	padding: 9px 12px;
+	border-bottom: 1px solid var(--border-soft);
+	vertical-align: middle;
+}
+.toh-facet-table TBODY TR:hover TD {
+	background: var(--hover);
+}
+.toh-facet-model {
+	font-weight: 500;
+}
+.toh-facet-go A {
+	display: inline-flex;
+	color: var(--text-faint);
+}
+.toh-facet-go A:hover {
+	color: var(--primary);
+}
+
+/* the list is capped until asked for in full */
+.toh-facet-more-row {
+	display: none;
+}
+#toh-facet-panel.show-all-devices .toh-facet-more-row {
+	display: table-row;
+}
+A.toh-facet-showall {
+	display: inline-block;
+	margin-top: 12px;
+	color: var(--primary);
+	font-size: 13px;
+	font-weight: 500;
+}
+
+/* the chipset link in the details popup header */
+A.toh-details-chipset {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	margin-left: 10px;
+	padding: 2px 9px;
+	border-radius: 999px;
+	background: var(--surface-sunken);
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 500;
+}
+A.toh-details-chipset:hover {
+	background: var(--primary-soft);
+	color: var(--primary);
+}
+A.toh-details-chipset .toh-ico {
+	width: 13px;
+	height: 13px;
+}
+
+/* CPU cells open the chipset page */
+#toh-table .tabulator-cell[tabulator-field=cpu] {
+	cursor: pointer;
+}
+#toh-table .tabulator-cell[tabulator-field=cpu]:hover {
+	color: var(--primary);
+	text-decoration: underline;
 }
 
 

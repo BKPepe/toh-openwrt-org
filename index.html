@@ -425,9 +425,24 @@
 								<h2>Compare devices</h2>
 								<p id="toh-compare-sub"><b id="toh-compare-diffcount">0</b> rows differ</p>
 							</div>
-							<a href="#" class="toh-but" id="toh-compare-close"><svg class="toh-ico" aria-hidden="true"><use href="#i-x"></use></svg> Back to the table</a>
+							<div id="toh-compare-opts">
+								<label class="toh-switch"><input type="checkbox" id="toh-compare-diffonly"> Only rows that differ</label>
+								<label class="toh-switch"><input type="checkbox" id="toh-compare-ref"> Compare against the first device</label>
+								<a href="#" class="toh-but" id="toh-compare-close"><svg class="toh-ico" aria-hidden="true"><use href="#i-x"></use></svg> Back to the table</a>
+							</div>
 						</div>
 						<div id="toh-compare-body"></div>
+					</section>
+
+
+					<!-- Manufacturer / chipset page ------------------------------------
+						Addressable as ?brand=... or ?chipset=...
+					-->
+					<section id="toh-facet-panel" class="toh-card toh-hidden">
+						<div id="toh-facet-head">
+							<a href="#" class="toh-but" id="toh-facet-close"><svg class="toh-ico" aria-hidden="true"><use href="#i-x"></use></svg> Back to the table</a>
+						</div>
+						<div id="toh-facet-body"></div>
 					</section>
 
 

@@ -113,7 +113,7 @@ let toh_colStyles = {
     bluetooth:							{title: "BT",			headerTooltip: 'Bluetooth version',				width: 40,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     bootloader:							{title: "Boot",			headerTooltip: 'BootLoader',					width: 60,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     buttoncount:						{title: "Butt.",		headerTooltip: 'Button count',					width: 40,	hozAlign: 'right',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined,		...colFilterMin},
-    cpu:								{title: "CPU",			headerTooltip: 'CPU',							width: 120,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: _formatCleanWords,	formatterParams: undefined},
+    cpu:								{title: "CPU",			headerTooltip: 'CPU',							width: 120,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: _formatCleanWords,	formatterParams: undefined,		cellClick: _cClickChipset},
     comments:							{title: "Comments",		headerTooltip: 'Comments',						width: 200,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     commentsavports:					{title: "AV Comments",	headerTooltip: 'AV ports Comments',				width: 60,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
     commentinstallation:				{title: "Inst.Comments",headerTooltip: 'Installation Comments',			width: 60,	hozAlign: 'left',	sorter: undefined,	frozen: false,	formatter: undefined,			formatterParams: undefined},
@@ -1142,6 +1142,10 @@ function _formatLink(cell, params, onRendered) {
 }
 function _formatLinkCommit(cell, params, onRendered) {
 	return FormatterLinkCommit(cell, params, onRendered);
+}
+function _cClickChipset(e, cell) {
+	e.stopPropagation();
+	tohOpenFacet('chipset', cell.getRow().getData().cpu);
 }
 function _formatCompare(cell, formatterParams, onRendered) {
 	return FormatterCompare(cell, formatterParams, onRendered);
