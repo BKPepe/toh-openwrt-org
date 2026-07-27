@@ -2,6 +2,7 @@
 
 
 ## Version 1.81 - 2026-xx-xx
+* modernize UI with contemporary design (WIP...)
 
 
 ## Version 1.80 - 2026-07-27
