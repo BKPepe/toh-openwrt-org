@@ -37,6 +37,12 @@
 		<!--
 		<link rel="stylesheet" href="static/css/toh.css" >
 		<script src="static/js/toh_conf.js"></script>
+		<script src="static/js/toh_util.js"></script>
+		<script src="static/js/toh_table.js"></script>
+		<script src="static/js/toh_filters.js"></script>
+		<script src="static/js/toh_views.js"></script>
+		<script src="static/js/toh_compare.js"></script>
+		<script src="static/js/toh_pages.js"></script>
 		<script src="static/js/toh_main.js"></script>
 		-->
 
@@ -62,9 +68,18 @@
 			const urlCache = new URLSearchParams(window.location.search).get('cache');
 			cache  += urlCache ? '-' + urlCache : '';
 
+			// Order matters: toh_main.js boots the app and must come last. The
+			// rest only declare functions, so they can load in any order among
+			// themselves - they are listed by dependency for readability.
 			let filesToUpdate = [
 				{ type: 'link', href: 'static/css/toh.css' },
 				{ type: 'script', src: 'static/js/toh_conf.js' },
+				{ type: 'script', src: 'static/js/toh_util.js' },
+				{ type: 'script', src: 'static/js/toh_table.js' },
+				{ type: 'script', src: 'static/js/toh_filters.js' },
+				{ type: 'script', src: 'static/js/toh_views.js' },
+				{ type: 'script', src: 'static/js/toh_compare.js' },
+				{ type: 'script', src: 'static/js/toh_pages.js' },
 				{ type: 'script', src: 'static/js/toh_main.js' }
 			];
 
