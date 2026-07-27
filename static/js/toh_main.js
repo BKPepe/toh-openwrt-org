@@ -331,6 +331,9 @@ function applyCheckedFeatures(){
 			}
 		});
 	});
+	// thresholds set in advanced search ride along with the checked features
+	toh_extra_filters.forEach(f => filters.push(f));
+
 	showLoading();
 	filters=reorderFilters(filters); // certainly not needed, but eases debug
 	tabuTable.setFilter(filters);
@@ -1126,6 +1129,144 @@ function tohShowFilterCounts(){
 			$(this).find('.toh-filter-count').text(counts[key].toLocaleString('en-US'));
 		}
 	});
+}
+
+
+// Advanced search ############################################################################################################
+// One form over the criteria people actually combine, with the result count
+// updating as you go. It drives the same feature checkboxes as the rail, so
+// there is only ever one set of active filters - plus two numeric thresholds
+// the fixed presets cannot express.
+
+const toh_advsearch=[
+	{group:'Network',	features:['eth_1g','eth_2d5g','eth_10g','port_sfp','vlan']},
+	{group:'Wireless',	features:['wifi_n','wifi_ac','wifi_ax','wifi_be','antennas']},
+	{group:'Ports',		features:['port_usb','port_sata','port_audio','port_video','gpio']},
+	{group:'Features',	features:['bluetooth','modem_cellular','modem_dsl','outdoor','power_poe']},
+	{group:'Type',		features:['type_wifirouter','type_wifiap','type_travel','type_board','type_switch']},
+	{group:'Status',	features:['available']},
+];
+
+// thresholds the presets cannot express
+const toh_advsearch_nums=[
+	{key:'ram',   field:'rammb',  label:'RAM at least',   unit:'MB', steps:[32,64,128,256,512,1024]},
+	{key:'flash', field:'flashmb',label:'Flash at least', unit:'MB', steps:[8,16,32,64,128,256], type:'flash>='},
+];
+
+let toh_adv_nums={};				// {ram: 128, flash: 16}
+let toh_extra_filters=[];			// numeric thresholds, applied alongside the checked features
+
+// Build the form ------------------------------------------------------------
+function tohBuildAdvSearch(){
+	let html='';
+
+	toh_advsearch.forEach(section => {
+		const items=section.features.filter(k => toh_filterFeatures[k]);
+		if(!items.length){
+			return;
+		}
+		html +='<div class="toh-adv-group"><h3>' + section.group + '</h3><div class="toh-adv-items">';
+		items.forEach(key => {
+			const f=toh_filterFeatures[key];
+			html +='<label class="toh-adv-item" title="' + tohAttr(makeFeatureDescription(key)) + '">'
+				+ '<input type="checkbox" class="toh-adv-check" data-key="' + key + '">'
+				+ '<span class="toh-adv-item-label">' + f.title + '</span>'
+				+ '<span class="toh-adv-item-count" data-key="' + key + '"></span>'
+				+ '</label>';
+		});
+		html +='</div></div>';
+	});
+
+	html +='<div class="toh-adv-group"><h3>Memory</h3><div class="toh-adv-nums">';
+	toh_advsearch_nums.forEach(n => {
+		html +='<label class="toh-adv-num"><span>' + n.label + '</span><select class="toh-adv-select" data-key="' + n.key + '">'
+			+ '<option value="">Any</option>';
+		n.steps.forEach(v => {
+			html +='<option value="' + v + '">' + v + ' ' + n.unit + '</option>';
+		});
+		html +='</select></label>';
+	});
+	html +='</div></div>';
+
+	$('#toh-adv-body').html(html);
+	tohAdvSync();
+}
+
+// Everything the form currently asks for, as a filter list -----------------
+function tohAdvFilters(){
+	const filters=[];
+	$('#toh-adv-body .toh-adv-check:checked').each(function(){
+		const key=$(this).attr('data-key');
+		toh_filterFeatures[key].filters.forEach(f => filters.push(f));
+	});
+	toh_advsearch_nums.forEach(n => {
+		const v=toh_adv_nums[n.key];
+		if(v){
+			filters.push({field:n.field, type:n.type || '>=', value:v});
+		}
+	});
+	return filters;
+}
+
+// Live count, and per-criterion counts within the current selection --------
+function tohAdvSync(){
+	const rows=tabuTable.getData();
+	const chosen=tohAdvFilters();
+	const matching=rows.filter(r => tohMatchFeature(r, chosen));
+	$('#toh-adv-count').text(matching.length.toLocaleString('en-US'));
+	$('#toh-adv-apply').prop('disabled', matching.length === 0);
+
+	// what each unchecked criterion would still leave you, given the rest
+	$('#toh-adv-body .toh-adv-item').each(function(){
+		const $cb=$(this).find('.toh-adv-check');
+		const key=$cb.attr('data-key');
+		let n;
+		if($cb.is(':checked')){
+			n=matching.length;
+		}
+		else {
+			const extra=chosen.concat(toh_filterFeatures[key].filters);
+			n=rows.filter(r => tohMatchFeature(r, extra)).length;
+		}
+		$(this).toggleClass('is-dead', n === 0);
+		$(this).find('.toh-adv-item-count').text(n.toLocaleString('en-US'));
+	});
+}
+
+// Push the form's selection into the rail and the table --------------------
+function tohAdvApply(){
+	const keys=[];
+	$('#toh-adv-body .toh-adv-check:checked').each(function(){
+		keys.push($(this).attr('data-key'));
+	});
+
+	checkAllFeatures(false);
+	keys.forEach(k => checkFeature(k, true));
+	setPresetSelectedClass('features','custom');
+
+	toh_extra_filters=[];
+	toh_advsearch_nums.forEach(n => {
+		const v=toh_adv_nums[n.key];
+		if(v){
+			toh_extra_filters.push({field:n.field, type:n.type || '>=', value:v});
+		}
+	});
+
+	applyCheckedFeatures();
+	updateFilterGroupState(true);
+	tohCloseAdvSearch();
+}
+
+function tohOpenAdvSearch(){
+	tohBuildAdvSearch();
+	$('#toh-adv-panel').removeClass('toh-hidden');
+	$('#toh-main, #toh-compare-panel, #toh-facet-panel').addClass('toh-hidden');
+	window.scrollTo(0,0);
+}
+
+function tohCloseAdvSearch(){
+	$('#toh-adv-panel').addClass('toh-hidden');
+	$('#toh-main').removeClass('toh-hidden');
 }
 
 
@@ -2174,6 +2315,30 @@ $(document).ready(function () {
 	});
 
 
+	// Advanced search ########################################################################################################
+
+	$('#toh-adv-open').on('click',function(e){
+		e.preventDefault();
+		tohOpenAdvSearch();
+	});
+	$('#toh-adv-close').on('click',function(e){
+		e.preventDefault();
+		tohCloseAdvSearch();
+	});
+	$('#toh-adv-apply').on('click',function(e){
+		e.preventDefault();
+		tohAdvApply();
+	});
+	$('#toh-adv-body').on('change','.toh-adv-check',function(){
+		tohAdvSync();
+	});
+	$('#toh-adv-body').on('change','.toh-adv-select',function(){
+		const v=parseInt($(this).val(),10);
+		toh_adv_nums[$(this).attr('data-key')]=isNaN(v) ? 0 : v;
+		tohAdvSync();
+	});
+
+
 	// Manufacturer / chipset pages ###########################################################################################
 
 	// anything marked js-toh-facet opens one, wherever it lives
@@ -2631,6 +2796,8 @@ $(document).ready(function () {
 	$(".toh-but-clearfilters").on('click', function (e) {
 		myLogFunc('on Click But ClearFilters');
 		e.preventDefault();
+		toh_extra_filters=[];
+		toh_adv_nums={};
 		tabuTable.clearFilter();
 		checkAllFeatures(false);
 		setPresetSelectedClass('features','custom');
@@ -2650,6 +2817,8 @@ $(document).ready(function () {
 	$(".toh-but-clearallfilters").on('click', function (e) {
 		myLogFunc('on Click But ClearAllFilters');
 		e.preventDefault();
+		toh_extra_filters=[];
+		toh_adv_nums={};
 		tabuTable.clearHeaderFilter();
 		tabuTable.clearFilter();
 		checkAllFeatures(false);

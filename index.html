@@ -261,6 +261,7 @@
 					<h1>Find your router</h1>
 					<p id="toh-lede">Check whether a device runs OpenWrt, which release supports it, and what is inside it.</p>
 
+					<div class="toh-hero-searchrow">
 					<div id="toh-search" class="toh-herosearch">
 						<span id="toh-search-icon"><svg class="toh-ico" aria-hidden="true"><use href="#i-search"></use></svg></span>
 						<div class="toh-search-group">
@@ -271,6 +272,9 @@
 							<input type="text" class="toh-search-input" id="toh-search-input-brand" data-field="brand" placeholder="Manufacturer&hellip;">
 							<span class="toh-search-clear" id="toh-search-clear-brand"><svg class="toh-ico" aria-hidden="true"><use href="#i-circle-x"></use></svg></span>
 						</div>
+					</div>
+
+					<a href="#" class="toh-but" id="toh-adv-open"><svg class="toh-ico" aria-hidden="true"><use href="#i-sliders-horizontal"></use></svg> Advanced search</a>
 					</div>
 
 					<div id="toh-stats">
@@ -432,6 +436,22 @@
 							</div>
 						</div>
 						<div id="toh-compare-body"></div>
+					</section>
+
+
+					<!-- Advanced search ------------------------------------------------ -->
+					<section id="toh-adv-panel" class="toh-card toh-hidden">
+						<div id="toh-adv-head">
+							<div>
+								<h2>Advanced search</h2>
+								<p id="toh-adv-sub"><b id="toh-adv-count">0</b> devices match</p>
+							</div>
+							<div id="toh-adv-actions">
+								<a href="#" class="toh-but" id="toh-adv-close"><svg class="toh-ico" aria-hidden="true"><use href="#i-x"></use></svg> Cancel</a>
+								<button type="button" class="toh-but toh-but-primary" id="toh-adv-apply">Show results</button>
+							</div>
+						</div>
+						<div id="toh-adv-body"></div>
 					</section>
 
 

@@ -2218,6 +2218,171 @@ TABLE.toh-compare-table {
 
 
 /* #####################################################################################################
+##### Advanced search ##################################################################################
+######################################################################################################## */
+
+#toh-adv-panel {
+	margin-top: 4px;
+}
+#toh-adv-head {
+	position: sticky;
+	top: var(--appbar-h);
+	z-index: 2;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 18px;
+	border-bottom: 1px solid var(--border);
+	background: var(--surface);
+	border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+#toh-adv-head H2 {
+	font-size: 18px;
+}
+#toh-adv-sub {
+	margin-top: 2px;
+	color: var(--text-muted);
+	font-size: 14px;
+}
+#toh-adv-sub B {
+	color: var(--text);
+	font-size: 16px;
+	font-weight: 650;
+	font-variant-numeric: tabular-nums;
+}
+#toh-adv-actions {
+	display: flex;
+	gap: 8px;
+}
+
+#toh-adv-body {
+	padding: 20px 18px 24px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+	gap: 24px 28px;
+	align-items: start;
+}
+
+.toh-adv-group H3 {
+	margin-bottom: 8px;
+	color: var(--text-faint);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.toh-adv-items {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.toh-adv-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 6px 9px;
+	border-radius: var(--r-sm);
+	font-size: 13px;
+	cursor: pointer;
+	transition: background var(--t);
+}
+.toh-adv-item:hover {
+	background: var(--hover);
+}
+.toh-adv-item INPUT {
+	flex: none;
+	width: 15px;
+	height: 15px;
+	margin: 0;
+	accent-color: var(--primary);
+	cursor: pointer;
+}
+.toh-adv-item-label {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.toh-adv-item-count {
+	flex: none;
+	color: var(--text-faint);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+}
+.toh-adv-item:has(INPUT:checked) {
+	background: var(--primary-soft);
+	color: var(--primary);
+	font-weight: 600;
+}
+.toh-adv-item:has(INPUT:checked) .toh-adv-item-count {
+	color: var(--primary);
+}
+/* a criterion that would leave nothing, given the rest of the form */
+.toh-adv-item.is-dead .toh-adv-item-label,
+.toh-adv-item.is-dead .toh-adv-item-count {
+	opacity: 0.4;
+}
+
+.toh-adv-nums {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.toh-adv-num {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 13px;
+	color: var(--text-muted);
+}
+.toh-adv-select {
+	height: 32px;
+	padding: 0 8px;
+	border: 1px solid var(--border);
+	border-radius: var(--r-sm);
+	background: var(--surface);
+	color: var(--text);
+	font-size: 13px;
+	cursor: pointer;
+}
+.toh-adv-select:focus {
+	border-color: var(--primary);
+	box-shadow: 0 0 0 3px var(--primary-ring);
+	outline: none;
+}
+
+/* the search box and the advanced-search button share a row */
+.toh-hero-searchrow {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+.toh-hero-searchrow .toh-herosearch {
+	flex: 1 1 420px;
+}
+#toh-adv-open {
+	flex: none;
+	height: 52px;
+	margin-top: 24px;
+}
+
+@media screen and (max-width: 760px) {
+	#toh-adv-open {
+		height: 44px;
+		margin-top: 10px;
+	}
+	#toh-adv-head {
+		flex-wrap: wrap;
+	}
+}
+
+
+/* #####################################################################################################
 ##### Manufacturer / chipset pages #####################################################################
 ######################################################################################################## */
 
