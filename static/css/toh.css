@@ -1864,21 +1864,15 @@ TABLE.toh-details-table {
 }
 
 /* Link rows span the table: their label already names the destination, so a key
-   cell beside them would only repeat it. Some rows hold two links (origin and
-   GitHub commit), hence the wrapping flex row. */
+   cell beside them would only repeat it. One link per row, so the group keeps
+   an even rhythm. */
 .toh-details-link {
 	background: var(--surface);
-}
-.toh-details-linkrow {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px 18px;
 }
 .toh-details-link A {
 	display: inline-flex;
 	align-items: center;
-	gap: 7px;
+	gap: 8px;
 }
 .toh-details-link .toh-ico {
 	width: 15px;
@@ -1886,7 +1880,7 @@ TABLE.toh-details-table {
 	flex: none;
 }
 .toh-details-link .toh-spacer {
-	display: none;					/* the flex gap spaces these now */
+	display: none;
 }
 .toh-details-value .toh-ico {
 	width: 15px;
@@ -2407,6 +2401,16 @@ A.toh-details-chipset:hover {
 A.toh-details-chipset .toh-ico {
 	width: 13px;
 	height: 13px;
+}
+.toh-details-chipset-label {
+	padding-right: 7px;
+	margin-right: 1px;
+	border-right: 1px solid var(--border-strong);
+	color: var(--text-faint);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 }
 
 /* CPU cells open the chipset page */

@@ -2820,6 +2820,22 @@ function tabuRowFormatter(row){
 
 
 
+// Split a formatted cell into one table row per link ------------------------
+function tohDetailsLinkRows(html){
+	const holder=document.createElement('div');
+	holder.innerHTML=html;
+	const anchors=holder.querySelectorAll('a');
+	if(anchors.length === 0){
+		return '';
+	}
+	let out='';
+	anchors.forEach(a => {
+		out +="<tr><td class='toh-details-link' colspan='2'>" + a.outerHTML + "</td></tr>";
+	});
+	return out;
+}
+
+
 // Tabulator: Cell Popup Formatters ###########################################################################################
 function CellPopupModel(e, cell, onRendered) {
 	// Build initial popup HTML structure with brand and model title
@@ -2829,7 +2845,9 @@ function CellPopupModel(e, cell, onRendered) {
 			"<b class='toth-details-title'>" +
 				"<a href='#' class='js-toh-facet' data-type='brand' data-value='" + tohAttr(data.brand) + "' title='All " + tohAttr(data.brand) + " devices'>" + data.brand + "</a>" +
 				" - " + data.model +
-				(data.cpu && data.cpu !== '-' ? " <a href='#' class='toh-details-chipset js-toh-facet' data-type='chipset' data-value='" + tohAttr(data.cpu) + "' title='All devices with this chipset'>" + tohIcon('cpu') + data.cpu + "</a>" : "") +
+				// spelled out, because an unlabelled part number next to the model
+				// name reads as noise unless you already know it is the SoC
+				(data.cpu && data.cpu !== '-' ? " <a href='#' class='toh-details-chipset js-toh-facet' data-type='chipset' data-value='" + tohAttr(data.cpu) + "' title='See every device using this chipset'>" + tohIcon('cpu') + "<span class='toh-details-chipset-label'>Chipset</span>" + data.cpu + "</a>" : "") +
 			"</b>" +
 			"<div class='toh-details-close'>"+tohIcon('circle-x')+"</div>" +
 		"</div>" +
@@ -2886,9 +2904,10 @@ function CellPopupModel(e, cell, onRendered) {
 			// and hold them back so they land together at the end of the group
 			// instead of breaking up the key/value rows.
 			if (mycol.formatterParams && mycol.formatterParams.label) {
-				// the flex layout goes on an inner div: making the TD itself a
-				// flex container takes it out of the table and voids the colspan
-				links += "<tr><td class='toh-details-link' colspan='2'><div class='toh-details-linkrow'>" + formattedValue + "</div></td></tr>";
+				// One row per link. Some columns render two at once (origin and
+				// GitHub commit), which otherwise left the group with rows of
+				// uneven length.
+				links += tohDetailsLinkRows(formattedValue);
 				return true;
 			}
 
