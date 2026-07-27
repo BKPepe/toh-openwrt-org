@@ -139,7 +139,11 @@ function htmlFilterDiv(filt,key,is_feature=false){
 	if(is_feature){
 		html +=makeFeatureDescription(key);
 	}
-	html +='">'+filt.title+'</a></span>';
+	html +='">';
+	html +='<span class="toh-filter-label">'+filt.title+'</span>';
+	// how many devices this would match; filled in by tohShowFilterCounts()
+	html +='<span class="toh-filter-count"></span>';
+	html +='</a></span>';
 	html +='<span class="toh-filter-description">'+filt.description+'</span>';
 	html +="</div>\n";
 	return html;
@@ -636,6 +640,12 @@ function applyColumnsFromFilters(){
 // If an active filter sits in a group that is hidden behind "Show more
 // filters", reveal the rest so it is never silently applied out of sight.
 function updateFilterGroupState(reveal_active=false){
+	// the row carries its own on/off class, so the styling does not depend on
+	// the native checkbox we hide
+	$('.toh-filter-feature').each(function(){
+		$(this).toggleClass('is-on', $(this).find('INPUT').is(':checked'));
+	});
+
 	var hidden_active=false;
 	$('.toh-filtgroup').each(function(){
 		const $group=$(this);
@@ -1035,6 +1045,87 @@ function tohCompareApply(){
 	if(toh_compare.length >= 2){
 		tohOpenCompare();
 	}
+}
+
+
+// Filter counts ##############################################################################################################
+// How many devices each feature filter would match, shown next to it in the
+// rail. Tabulator's own engine costs ~33ms per pass, so 43 features would mean
+// a second and a half of redraws; these mirror its comparison semantics
+// instead. tools/verify-filter-counts.mjs checks the two agree exactly.
+
+function _matchOne(row, filt){
+	const rowVal=row[filt.field];
+	const filtVal=filt.value;
+
+	switch(filt.type){
+		case '=':	return rowVal == filtVal;
+		case '!=':	return rowVal != filtVal;
+		case '>':	return rowVal > filtVal;
+		case '>=':	return rowVal >= filtVal;
+		case '<':	return rowVal < filtVal;
+		case '<=':	return rowVal <= filtVal;
+
+		case 'like':
+			if(filtVal === null || filtVal === undefined){
+				return rowVal === filtVal;
+			}
+			if(rowVal === null || rowVal === undefined){
+				return false;
+			}
+			return String(rowVal).toLowerCase().indexOf(String(filtVal).toLowerCase()) > -1;
+
+		case 'keywords': {
+			// Tabulator matches ANY keyword unless filterParams.matchAll is set,
+			// which is easy to get backwards: "available unknown" is meant to
+			// catch either word, not both
+			const params=filt.filterParams || {};
+			const sep=params.separator === undefined ? ' ' : params.separator;
+			const keywords=String(filtVal).toLowerCase().split(sep).filter(Boolean);
+			const hay=String(rowVal === null || rowVal === undefined ? '' : rowVal).toLowerCase();
+			const hits=keywords.filter(k => hay.indexOf(k) > -1).length;
+			return params.matchAll ? hits === keywords.length : hits > 0;
+		}
+
+		case 'regex':
+			return (typeof filtVal === 'string' ? new RegExp(filtVal) : filtVal).test(rowVal);
+
+		case 'flash>=':
+			return _getFlashArrayBestValue(rowVal) >= filtVal;
+	}
+	return true;			// an operator we do not model must not silently exclude rows
+}
+
+// A feature's filter list: top level is AND, a nested array is OR ----------
+function tohMatchFeature(row, filters){
+	return filters.every(f => Array.isArray(f) ? f.some(o => _matchOne(row,o)) : _matchOne(row,f));
+}
+
+// Count every feature once, against the whole dataset ---------------------
+function tohCountFeatures(){
+	myLogFunc();
+	const rows=tabuTable.getData();
+	const counts={};
+	for(const key in toh_filterFeatures){
+		const filters=toh_filterFeatures[key].filters;
+		let n=0;
+		for(let i=0;i<rows.length;i++){
+			if(tohMatchFeature(rows[i], filters)){ n++; }
+		}
+		counts[key]=n;
+	}
+	return counts;
+}
+
+// Write the counts into the rail ------------------------------------------
+function tohShowFilterCounts(){
+	const counts=tohCountFeatures();
+	$('.toh-filter-feature').each(function(){
+		const key=$(this).find('INPUT').attr('data-key');
+		if(counts[key] !== undefined){
+			$(this).find('.toh-filter-count').text(counts[key].toLocaleString('en-US'));
+		}
+	});
 }
 
 
@@ -2189,6 +2280,7 @@ $(document).ready(function () {
 				tohSetTableHeight(tabulatorOptions.paginationSize);
 				requestAnimationFrame(() => tohSetTableHeight(tabulatorOptions.paginationSize));
 
+				tohShowFilterCounts();
 				tohCompareApply();
 				if(toh_facet_pending){
 					tohOpenFacet(toh_facet_pending.type, toh_facet_pending.value);

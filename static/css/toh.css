@@ -554,34 +554,35 @@ A.toh-filters-clear .toh-ico {
 
 #toh-filters-presets .toh-filters-list {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 5px;
+	flex-direction: column;
+	gap: 4px;
 }
 
-/* unwrap the generic filter row markup so the presets can flow as labels */
-#toh-filters-presets .toh-filter-preset,
 #toh-filters-presets .toh-filter-preset .toh-filter-title {
-	display: contents;
+	display: block;
 }
 
-/* GitHub-style labels rather than framework pills */
+/* full-width rows, like the filters below them */
 #toh-filters-presets A.toh-filter-button {
-	display: inline-block;
-	padding: 2px 8px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 7px 10px;
 	border: 1px solid var(--border);
 	border-radius: var(--r-sm);
 	background: var(--surface);
-	color: var(--text-muted);
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 18px;
-	white-space: nowrap;
+	color: var(--text);
+	font-size: 13px;
 	transition: all var(--t);
 }
 #toh-filters-presets A.toh-filter-button:hover {
 	border-color: var(--primary);
 	background: var(--primary-soft);
 	color: var(--primary);
+}
+#toh-filters-presets .toh-filter-label {
+	white-space: normal;
 }
 /* the preset explanation only fits as a tooltip in a 272px column */
 #toh-filters-presets .toh-filter-description {
@@ -675,34 +676,70 @@ A.toh-filters-more .toh-ico {
 	list-style: none;
 }
 
+/* Each filter is a full-width row - label left, matching device count right -
+   rather than a browser checkbox with a label after it. The native checkbox is
+   still the state, just not the thing you look at. */
 .toh-filter {
-	padding: 3px 0;
+	padding: 0;
 }
 
-/* the checkbox lives inside .toh-filter-title, so that is where the row layout goes */
 .toh-filter-feature .toh-filter-title {
-	display: flex;
-	align-items: baseline;
-	gap: 9px;
+	display: block;
 	min-width: 0;
 }
 .toh-filter-feature INPUT[type=checkbox] {
-	flex: none;
-	width: 14px;
-	height: 14px;
-	margin: 0;
-	accent-color: var(--primary);
-	cursor: pointer;
-	transform: translateY(2px);
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
 }
 
 .toh-filter-feature .toh-filter-title A {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 6px 9px;
+	border-radius: var(--r-sm);
 	color: var(--text);
 	font-size: 13px;
+	transition: background var(--t), color var(--t);
 }
 .toh-filter-feature .toh-filter-title A:hover {
-	cursor: help;
+	background: var(--hover);
+	color: var(--text);
+}
+.toh-filter-label {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.toh-filter-count {
+	flex: none;
+	color: var(--text-faint);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+}
+
+/* on ---- */
+.toh-filter-feature.is-on .toh-filter-title A {
+	background: var(--primary-soft);
 	color: var(--primary);
+	font-weight: 600;
+}
+.toh-filter-feature.is-on .toh-filter-count {
+	color: var(--primary);
+}
+.toh-filter-feature.is-on .toh-filter-title A::before {
+	content: '';
+	flex: none;
+	width: 3px;
+	align-self: stretch;
+	margin: -6px 2px -6px -6px;
+	border-radius: 2px;
+	background: var(--primary);
 }
 
 /* the long "field like value" explanation only fits as a tooltip here */
