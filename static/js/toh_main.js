@@ -140,9 +140,19 @@ function htmlFilterDiv(filt,key,is_feature=false){
 		html +=makeFeatureDescription(key);
 	}
 	html +='">';
-	html +='<span class="toh-filter-label">'+filt.title+'</span>';
-	// how many devices this would match; filled in by tohShowFilterCounts()
-	html +='<span class="toh-filter-count"></span>';
+	if(is_feature){
+		html +='<span class="toh-filter-label">'+filt.title+'</span>';
+		// how many devices this would match; filled in by tohShowFilterCounts()
+		html +='<span class="toh-filter-count"></span>';
+	}
+	else{
+		// A preset title like "More, AC, Gbit, Avail." means nothing on first
+		// sight, so the description it already carries goes underneath it.
+		html +='<span class="toh-filter-lines">';
+		html +='<span class="toh-filter-label">'+filt.title+'</span>';
+		html +='<span class="toh-filter-sub">'+filt.description+'</span>';
+		html +='</span>';
+	}
 	html +='</a></span>';
 	html +='<span class="toh-filter-description">'+filt.description+'</span>';
 	html +="</div>\n";
@@ -2319,7 +2329,13 @@ $(document).ready(function () {
 
 	$('#toh-adv-open').on('click',function(e){
 		e.preventDefault();
-		tohOpenAdvSearch();
+		// the same button closes it again
+		if($('#toh-adv-panel').hasClass('toh-hidden')){
+			tohOpenAdvSearch();
+		}
+		else{
+			tohCloseAdvSearch();
+		}
 	});
 	$('#toh-adv-close').on('click',function(e){
 		e.preventDefault();
