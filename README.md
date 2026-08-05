@@ -29,4 +29,11 @@ The ToH code is maintained in [its GitHub repo](https://github.com/openwrt/toh-o
 
 Fork the repository, refine the code, and submit a pull request (to the **develop** branch). Together, we can build a robust, user-friendly ToH that benefits the entire OpenWrt community.
 
+## Development
+
+The page is plain files with no build step; serve the repository with any local web server and open `index.html`.
+
+- `npm install`, then `npx playwright install chromium` once, and `npm test` runs the regression suite in `tools/regress.mjs`.
+- Asset URLs in `index.html` carry a hash of each file. After changing anything under `static/`, run `npm run stamp`; CI fails when a stamp is out of date.
+
 Thanks.

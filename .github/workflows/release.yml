@@ -17,6 +17,13 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for tag detection
 
+      # index.html has to name the current version of every asset; run
+      # `npm run stamp` and commit if this fails
+      - name: Check asset stamps
+        run: |
+          node tools/stamp.mjs
+          git diff --exit-code index.html
+
       - name: Verify tag is on master and fetch tags
         id: is_on_master
         run: |
