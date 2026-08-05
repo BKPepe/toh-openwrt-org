@@ -1,0 +1,53 @@
+name: Regression suite
+
+# Runs the static checks and the Playwright suite in tools/regress.mjs.
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  regress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Keep the dataset between runs instead of downloading it from openwrt.org
+      # each time; regress.mjs fetches it into tools/.cache/ on a miss. The key
+      # is fixed: bump the suffix to refresh against newer upstream data.
+      - name: Cache the device dataset
+        uses: actions/cache@v4
+        with:
+          path: tools/.cache
+          key: toh-dataset-v2
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Static checks
+        run: |
+          node tools/check-css.mjs
+          node tools/check-icons.mjs
+          node tools/check-html-escapes.mjs
+
+      # Asset URLs in index.html carry a hash of the file's contents. This fails
+      # when a script or stylesheet changed without re-running tools/stamp.mjs.
+      - name: Asset stamps are current
+        run: |
+          node tools/stamp.mjs
+          git diff --exit-code index.html
+
+      - name: Run the regression suite
+        run: npm test
