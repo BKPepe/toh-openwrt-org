@@ -1,9 +1,20 @@
 # CHANGELOG
 
 
-## Version 1.81 - 2026-xx-xx
-* modernize UI with contemporary design (WIP...)
-
+## Version 1.82 - 2026-xx-xx (unreleased)
+* Redesigned the Table of Hardware around finding a device
+* Added a responsive layout: a table on the desktop, cards on a phone
+* Added advanced search and a "Help me choose" configurator
+* Added side-by-side device comparison
+* Added favourites and manufacturer / chipset / target pages
+* Presets rebuilt into one list with device counts
+* Added a database statistics page
+* Added a light / dark theme and a compact row density
+* Shareable links for searches, filters, comparisons and single devices
+* Faster first load
+* Fixed filters that returned the wrong devices, or none at all
+* Removed FontAwesome, Bootstrap and the unused XLSX library
+* Added a Playwright regression suite and CI (npm ci && npm test)
 
 ## Version 1.80 - 2026-07-27
 
