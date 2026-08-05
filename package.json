@@ -1,0 +1,11 @@
+{
+	"name": "toh-openwrt-org",
+	"private": true,
+	"description": "Dev tooling only - the page itself is plain scripts with no build step. See tools/regress.mjs.",
+	"scripts": {
+		"test": "node tools/regress.mjs"
+	},
+	"devDependencies": {
+		"playwright": "^1.62.0"
+	}
+}
