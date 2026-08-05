@@ -12,5 +12,9 @@
 /__*
 __*
 
+# Dev tooling (tools/regress.mjs) -------
+node_modules/
+tools/.cache/
+
 
 ###############################################################

@@ -1,0 +1,63 @@
+name: Regression suite
+
+# The Playwright suite in tools/regress.mjs only protects the page if something
+# runs it. Named regress.yml rather than ci.yml because PR #59 adds a ci.yml of
+# its own (Prettier + node --test); the two are meant to coexist, and if #59
+# lands first its formatting job covers what this one does not.
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  regress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The dataset is ~4 MB and openwrt.org rate-limits it (we have seen 503s),
+      # so cache it rather than fetching it per run. regress.mjs's cached()
+      # fetches and writes tools/.cache/ itself on a miss, so a cold cache costs
+      # one download and warms it for everyone after.
+      #
+      # A fixed key on purpose: it has to actually hit. Bump the suffix to force
+      # a refresh against newer upstream data.
+      - name: Cache the device dataset
+        uses: actions/cache@v4
+        with:
+          path: tools/.cache
+          key: toh-dataset-v1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Static checks
+        run: |
+          node tools/check-css.mjs
+          node tools/check-icons.mjs
+          node tools/check-html-escapes.mjs
+
+      # Asset URLs carry a hash of their contents, so a change to a script or a
+      # stylesheet has to be re-stamped into index.html or returning visitors
+      # keep the cached copy. This fails the build when someone forgets - which
+      # includes any PR that reformats JS without re-stamping, so expect it to
+      # bite the Prettier job in #59 the first time the two meet.
+      - name: Asset stamps are current
+        run: |
+          node tools/stamp.mjs
+          git diff --exit-code index.html
+
+      - name: Run the regression suite
+        run: npm test
